@@ -13,7 +13,8 @@
     "cookie-parser": "^1.4.3",
     "ejs": "~1.0.0",
     "express": "^4.14.0",
-    "mongodb": "*",
-    "mysql": "*"
+    "mongoose": "^4.5.7",
+    "morgan": "^1.7.0",
+    "serve-favicon": "^2.3.0"
   }
 }

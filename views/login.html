@@ -7,16 +7,21 @@
     <meta name="description" content="slick Login">
     <meta name="author" content="Webdesigntuts+">
     <!-- Bootstrap core CSS -->
-    <link href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> -->
+    <link href="/stylesheets/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
     	body {
-		    background-image:url(http://imglf.nosdn.127.net/img/M21vQXBXZkIzMEFEdy9RUXd2L0s5b1BWa3ZSRFhrNzlRTHphVVlqaEE4TlFxWW4wc2JRN0pBPT0.jpg?imageView&thumbnail=1920y1080&type=jpg&quality=96&stripmeta=0&type=jpg);
+		    background-image:url(images/bg.jpg);
     		background-repeat:no-repeat;
+    		background-size: cover;
+
 		}
 		h1 {
 			text-align: center;
 			color:	#708090;
 			font-size:5em;
+			font-weight: normal;
+			margin-bottom: 30px
 		}
     </style>
 
@@ -29,8 +34,6 @@
         <label for="password">password</label> <input type="password" name="password">
         <input type="submit" value="Log In">
         <a class="register" href="/register" target="_blank" seed="authcenter-register" title="免费注册" tabindex="6">免费注册</a>
-        
-		
     </form>
     <style type="text/css">
 	    #slick-login {
@@ -46,7 +49,7 @@
     		display: none;
 		}
 	    #slick-login input[type="text"],#slick-login input[type="password"] {
-		    width: 100%;
+		    width: 92%;
 		    height: 40px;
 		    margin-top: 6px;
 		    margin-bottom: 6px;
