@@ -48,7 +48,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block" id="register1">注册</button>
+                        <button type="submit" class="btn btn-primary btn-block" id="register1" ng-disabled="username.required">注册</button>
                 </div>
                 <div class="form-group">
                         <button type="button" class="btn btn-info col-sm-2 col-sm-offset-10" id="login1">登录</button>
@@ -59,14 +59,14 @@
         </form>
     </div>
 
-    <script type="text/javascript" src="javascripts/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="javascripts/bootstrap.min.js"></script>
     <script type="text/javascript">
     $(function(){ 
         $("#login1").click(function(){
             location.href = 'login';
         });
-        $("#register1").click(function(){ 
+        $("#register1").click(function(){
             var username = $("#username").val();
             var password = $("#password").val();
             var password1 = $("#password1").val();
@@ -81,11 +81,11 @@
                 data: data,
                 success: function(data,status){ 
                     if(status == 'success'){ 
-                        location.href = 'login';
+                        location.href = './login';
                     }
                 },
                 error: function(data,err){ 
-                        location.href = 'register';
+                        location.href = './register';
                 }
             }); 
         }

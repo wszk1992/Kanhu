@@ -1,17 +1,21 @@
 var express = require("express");
 var path = require('path'); // 第三方中间件
-//var mongoose = require("mongoose");
+var mongoose = require("mongoose");
+//var multer = require('multer');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('cookie-session');
 
 //route
 var routes = require('./router/index');
-var users = require('./router/users');
 
 var app = express();
-//var Schema = mongoose.Schema;
+
+//database
+global.dbHandel = require('./database/dbHandel');
+global.db = mongoose.connect("mongodb://localhost:27017/nodedb");
 
 //view engine setup
 //allow nodejs use html
@@ -24,13 +28,34 @@ app.engine('html', require('ejs').renderFile);
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false}));
+app.use(bodyParser.urlencoded({ extended: true}));
+//app.use(multer());
 app.use(cookieParser());
 //Add path for static files
 app.use(express.static(__dirname + '/public'));
 
 app.use('/', routes);
+app.use('/login', routes);
+app.use('/register', routes);
+app.use('/logout', routes);
 //app.use('/users', users);
+
+//session
+app.use(session({
+	secret: 'secret'
+}));
+
+app.use(function(req, res, next) {
+	res.locals.user = req.session.user;
+	var err = req.session.error;
+	delete req.session.error;
+	res.locals.message = "";
+	if(err) {
+		res.locals.message = '<div class="alert alert-danger"\
+		 style="margin-bottom:20px;color:red;">' + err + '</div>';
+	}
+	next();
+});
 
 
 //catch 404 and forward to error handler
@@ -60,19 +85,6 @@ app.use(function(err, req, res, next) {
 	});
 });
 
-//@@@DATABASE
-
-// //url
-// url = 'mongodb://127.0.0.1:27017/kanhu';
-// var connect = mongoose.connect(url);
-
-// //Define object model
-// var UserScheme = new Schema({
-// 	username: {type: String, default: 'Foo'},
-// 	password: {type: String, default: '123456'},
-// });
-
-//@@@DATABASE
 
 var server = app.listen(3000, function() {
 	console.log("Express on port 3000!");
