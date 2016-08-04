@@ -6,7 +6,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var session = require('cookie-session');
+var session = require('express-session');
 
 //route
 var routes = require('./router/index');
@@ -17,6 +17,13 @@ var app = express();
 global.dbHandel = require('./database/dbHandel');
 global.db = mongoose.connect("mongodb://localhost:27017/nodedb");
 
+//session
+app.use(session({
+	secret: 'secret',
+	cookie:{
+		maxAge: 1000*60*30
+	}
+}));
 //view engine setup
 //allow nodejs use html
 app.set('views', __dirname + '/views');
@@ -28,22 +35,11 @@ app.engine('html', require('ejs').renderFile);
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.urlencoded({extended: true}));
 //app.use(multer());
 app.use(cookieParser());
 //Add path for static files
 app.use(express.static(__dirname + '/public'));
-
-app.use('/', routes);
-app.use('/login', routes);
-app.use('/register', routes);
-app.use('/logout', routes);
-//app.use('/users', users);
-
-//session
-app.use(session({
-	secret: 'secret'
-}));
 
 app.use(function(req, res, next) {
 	res.locals.user = req.session.user;
@@ -58,6 +54,12 @@ app.use(function(req, res, next) {
 });
 
 
+app.use('/', routes);
+app.use('/login', routes);
+app.use('/register', routes);
+app.use('/logout', routes);
+//app.use('/users', users);
+
 //catch 404 and forward to error handler
 app.use(function(req, res, next) {
 	var err = new Error('Not Found');
@@ -66,10 +68,10 @@ app.use(function(req, res, next) {
 });
 
 //development error handler
-if(app.get('env') == 'development') {
+if(app.get('env') === 'development') {
 	app.use(function(err, req, res, next) {
 		res.status(err.status || 500);
-		res.render('error', {
+		res.render('error.html', {
 			message: err.message,
 			error: err
 		});
@@ -79,7 +81,7 @@ if(app.get('env') == 'development') {
 //production error handler
 app.use(function(err, req, res, next) {
 	res.status(err.status || 500);
-	res.render('error', {
+	res.render('error.html', {
 		message: err.message,
 		error: {}
 	});

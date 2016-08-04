@@ -14,6 +14,7 @@
     "cookie-session": "^2.0.0-alpha.1",
     "ejs": "~1.0.0",
     "express": "^4.14.0",
+    "express-session": "^1.14.0",
     "mongoose": "^4.5.7",
     "morgan": "^1.7.0",
     "multer": "^1.1.0",

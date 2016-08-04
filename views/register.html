@@ -13,9 +13,9 @@
     </style>
 </head>
 <body screen_capture_injected="true">
-    <div class="container">Kanhu message
-
-        <form class="col-sm-offset-4 col-sm-4 form-horizontal" role="form" method="post" onsubmit="return false">
+    <div class="container">
+        <%- message %>
+        <form class="col-sm-offset-4 col-sm-4 form-horizontal" action="/register" role="form" method="post">
             <fieldset>
                 <legend></legend>
                 <div class="panel panel-default">
@@ -36,7 +36,7 @@
                         <span class="input-group-addon">
                         <span class="glyphicon glyphicon-lock"></span>
                         </span>
-                        <input type="text" class="form-control" id="password" name="password" placeholder="请输入密码" required>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -44,14 +44,14 @@
                         <span class="input-group-addon">
                         <span class="glyphicon glyphicon-lock"></span>
                         </span>
-                        <input type="text" class="form-control" id="password1" name="password1" placeholder="请再次输入密码" required>
+                        <input type="password" class="form-control" id="password1" name="password1" placeholder="请再次输入密码" required>
                     </div>
                 </div>
                 <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block" id="register1" ng-disabled="username.required">注册</button>
+                        <button type="submit" class="btn btn-primary btn-block" id="register1">注册</button>
                 </div>
                 <div class="form-group">
-                        <button type="button" class="btn btn-info col-sm-2 col-sm-offset-10" id="login1">登录</button>
+                        <button type="button" class="btn btn-info col-sm-2 col-sm-offset-10" id="login1" Onclick="window.location.href='/login'">登录</button>
                 </div>
                 </div>
                 </div>
@@ -61,7 +61,7 @@
 
     <script type="text/javascript" src="javascripts/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="javascripts/bootstrap.min.js"></script>
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
     $(function(){ 
         $("#login1").click(function(){
             location.href = 'login';
@@ -74,24 +74,26 @@
                 $("#password").css("border","1px solid red");
                 $("#password1").css("border","1px solid red");
             }else if(password === password1){
-            var data = {"uname":username,"upwd":password};
-            $.ajax({ 
-                url: '/register',
-                type: 'post',
-                data: data,
-                success: function(data,status){ 
-                    if(status == 'success'){ 
-                        location.href = './login';
+                var data = {"uname":username,"upwd":password};
+                $.ajax({ 
+                    url: '/register',
+                    type: 'post',
+                    data: data,
+                    success: function(data,status){ 
+                        if(status == 'success'){ 
+                            console.log("register successfully");
+                            location.href = 'login';
+                        }
+                    },
+                    error: function(data,err){ 
+                        console.log("register failed");
+                        location.href = 'register';
                     }
-                },
-                error: function(data,err){ 
-                        location.href = './register';
-                }
-            }); 
-        }
+                }); 
+            }
         });
     });
-</script>
+</script> -->
 </body>
 </head>
 </html>
