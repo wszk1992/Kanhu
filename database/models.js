@@ -1,7 +1,8 @@
 module.exports = {
 	user:{
 		username: {type: String, required: true},
-		password: {type: String, required: true}
+		password: {type: String, required: true},
+		admin: {type: Boolean, default: false}
 	},
 
 	answer:{
@@ -20,13 +21,13 @@ module.exports = {
 		questionId: Number,
 		title: String,
 		user: String,
-		body: String,
+		detail: String,
 		date: {type: Date, default: Date.now},
 		answers: [{answerId: Number}]
 	},
 
 	user_QandA:{
-		name: String,
+		username: String,
 		questions: [{questionId: Number}],
 		answers: [{answerId: Number}]
 	}

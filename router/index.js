@@ -93,36 +93,41 @@ router.post('/register', function(req, res) {
 });
 
 router.get('/user/:id', function(req, res) {
-	console.log("enter /user/id");
 	var id = req.params.id;
 	var User = global.dbHandel.getModel('user');
 	User.findOne({username: id}, function(err, doc) {
 		if(err) {
-			console.log("something wrong");
 			console.log(err);
 			req.session.error = 'Internet Error';
 			res.sendStatus(500);
 		}else if(doc) {
 			if(id == req.session.user) {
-				console.log("go to user profile");
 				res.render('user.html', {username: id});
 			}else {
-				console.log("Cannot browse other's profile yet");
 				req.session.error = "Cannot browse other's profile yet";
 				res.redirect("/");
 			}
 		}else {
-			console.log("no such user");
 			req.session.error = "No such user";
 			res.sendStatus(404);
 		}
 	});
 });
 
+router.post('/user/:id/questions', function(req, res) {
+
+});
+
 router.get('/about', function(req, res) {
 	res.render('about.html');
 });
 
+router.get('/users', function(req, res) {
+	var User = global.dbHandel.getModel('user');
+	User.find({}, function(req, doc) {
+		res.send(doc);
+	});
+});
 
 
 module.exports = router;
