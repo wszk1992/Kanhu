@@ -95,6 +95,7 @@ router.post('/register', function(req, res) {
 router.get('/user/:id', function(req, res) {
 	var id = req.params.id;
 	var User = global.dbHandel.getModel('user');
+	var Question = global.dbHandel.getModel('question');
 	User.findOne({username: id}, function(err, doc) {
 		if(err) {
 			console.log(err);
@@ -102,7 +103,15 @@ router.get('/user/:id', function(req, res) {
 			res.sendStatus(500);
 		}else if(doc) {
 			if(id == req.session.user) {
-				res.render('user.html', {username: id});
+				Question.find({}, function(err, doc) {
+					if(err) {
+						console.log(err);
+						req.session.error = 'Internet Error';
+						res.sendStatus(500);
+					}else {
+						res.render('user.html', {username: id, myQuestions: doc});
+					}
+				});
 			}else {
 				req.session.error = "Cannot browse other's profile yet";
 				res.redirect("/");
@@ -115,11 +124,44 @@ router.get('/user/:id', function(req, res) {
 });
 
 router.post('/user/:id/questions', function(req, res) {
-
+	if(req.params.id != req.session.user) {
+		req.session.error = "Cannot post the question on others' account";
+		res.redirect('/');
+	}
+	var Question = global.dbHandel.getModel('question');
+	Question.create({
+		title: req.body.question_title,
+		detail: req.body.question_details,
+		user: req.params.id
+		}, function(err, doc) {
+					if(err) {
+						console.log(err);
+						res.sendStatus(500);
+					}else {
+						console.log('post question successfully');
+						//req.session.success = 'post question successfully';
+						//res.sendStatus(200);
+						//TODO: redirect to question page
+						res.redirect("/user/" + req.params.id);
+					}
+	});
 });
 
-router.get('/about', function(req, res) {
-	res.render('about.html');
+router.get('/questions/:id', function(req, res) {
+	var id = req.params.id;
+	var Question = global.dbHandel.getModel('question');
+	Question.findOne({_id: id}, function(err, doc) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else if(doc) {
+			res.render('question.html', {question: doc, username: req.session.user});
+		}else {
+			req.session.error = "No such question";
+			res.sendStatus(404);
+		}
+	});
 });
 
 router.get('/users', function(req, res) {
@@ -129,5 +171,10 @@ router.get('/users', function(req, res) {
 	});
 });
 
+
+
+router.get('/about', function(req, res) {
+	res.render('about.html',{username: req.session.user});
+});
 
 module.exports = router;

@@ -24,6 +24,9 @@
       body {
       padding-top: 100px;
     }
+      h3 {
+        color: #428bca;
+      }
 
     </style>
   </head>
@@ -53,14 +56,14 @@
                <li>
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-primary navbar-btn " data-toggle="modal" data-target=".bs-example-modal-lg">
-                  Question
+                  Ask
                 </button>  
               </li>
 
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= username %><span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                  <li><a href="#" id="profile">Profile</a></li>
+                  <li><a href="/user/<%= username%>" id="profile">Profile</a></li>
                   <li><a href="#">Another action</a></li>
                   <li><a href="#">Something else here</a></li>
                   <li role="separator" class="divider"></li>
@@ -75,27 +78,7 @@
       </div>
     </nav>
 
-    <div class="container">
-      <div>
-
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs" role="tablist">
-          <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">My Questions</a></li>
-          <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">My Answers</a></li>
-        </ul>
-
-        <!-- Tab panes -->
-        <div class="tab-content">
-          <div role="tabpanel" class="tab-pane active" id="home">...</div>
-          <div role="tabpanel" class="tab-pane" id="profile">...</div>
-          <div role="tabpanel" class="tab-pane" id="messages">...</div>
-          <div role="tabpanel" class="tab-pane" id="settings">...</div>
-        </div>
-
-      </div>
-    </div>
-
- <!-- Question Modal -->
+    <!-- Question Modal -->
     <div class="modal fade bs-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
       <div id="question-submit" class="modal-dialog" role="document">
         <form action='#' id="question" method="post">
@@ -103,11 +86,11 @@
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               <label for="myModaltitle">Question:</label>
-              <input class="form-control" id="myModaltitle" autofocus="autofocus" name="Question_title" placeholder="Question title" required>
+              <input class="form-control" id="myModaltitle" autofocus="autofocus" name="question_title" placeholder="Question title" required>
             </div>
             <div class="modal-body">
               <label for="myModalcontent">Details:</label>
-              <textarea class="form-control" rows="3" name="Question_details"></textarea>
+              <textarea class="form-control" rows="3" name="question_details"></textarea>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -116,7 +99,37 @@
           </div>
         </form>
       </div>
-    </div>     
+    </div>  
+
+    <!-- nav-tabs -->
+    <div class="container">
+      <div>
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active"><a href="#myQuestions" aria-controls="myQuestions" role="tab" data-toggle="tab">My Questions</a></li>
+          <li role="presentation"><a href="#myAnswers" aria-controls="myAnswers" role="tab" data-toggle="tab">My Answers</a></li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active" id="myQuestions">
+            <!-- Questions list -->
+              <% for(i = 0; i < myQuestions.length; i++) { %> 
+                <div class="page-header"> 
+                  <h3><a href="/questions/<%= myQuestions[i]._id %>"><%= myQuestions[i].title %></a></h3>
+                  <small><%= myQuestions[i].detail %></small>
+                </div> 
+              <% } %> 
+          </div>
+          <div role="tabpanel" class="tab-pane" id="myAnswers">
+            <!-- Answers list -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
 
 
     <!-- Bootstrap core JavaScript
@@ -125,7 +138,6 @@
     <script src="../javascripts/jquery-3.1.0.min.js"></script>
     <script src="../javascripts/bootstrap.min.js"></script>
     <script>
-      document.getElementById("profile").href = "/user/" + "<%= username%>";
       document.getElementById("question").action = "/user/" + "<%= username%>" + "/questions";
     </script>
   </body>

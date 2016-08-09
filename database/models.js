@@ -6,7 +6,6 @@ module.exports = {
 	},
 
 	answer:{
-		answerId: Number,
 		questionId: Number,
 		user: String, 
 		date: {type: Date, default: Date.now},
@@ -18,10 +17,9 @@ module.exports = {
 	},
 
 	question:{
-		questionId: Number,
 		title: String,
-		user: String,
 		detail: String,
+		user: String,
 		date: {type: Date, default: Date.now},
 		answers: [{answerId: Number}]
 	},
