@@ -88,7 +88,8 @@ app.use(function(err, req, res, next) {
 	});
 });
 
+var port = process.env.PORT || 1337;
 
-var server = app.listen(3000, function() {
+var server = app.listen(port, function() {
 	console.log("Express on port 3000!");
 });
