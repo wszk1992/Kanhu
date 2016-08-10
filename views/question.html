@@ -11,7 +11,6 @@
     <link rel="icon" href="/favicon.ico">
 
     <title><%= question.title %></title>
-    <script src="/ckeditor/ckeditor.js"></script>
     <!-- Bootstrap core CSS -->
     <link href="/stylesheets/bootstrap.min.css" rel="stylesheet">
 
@@ -48,12 +47,11 @@
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
               <li><a href="#">Home</a></li>
-              <li><a href="#">About</a></li>
-              <li><a href="#">Contact</a></li>
+              <li><a href="/questions">Questions</a></li>
+              <li><a href="https://github.com/wszk1992/Kanhu">Github</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              
-               <li>
+              <li>
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-primary navbar-btn " data-toggle="modal" data-target=".bs-example-modal-lg">
                   Ask
@@ -102,28 +100,38 @@
     </div>  
 
     <div class="container">
+      <!-- question -->
       <div class="page-header">
-        <h1><%= question.title %> 
-          <p><small><%= question.detail %></small></p>
-        </h1>
-        <h6 class="text-right"><%= question.date %></h6>
-      </div>
+        <div class="row"> 
+          <div class="col-md-8">
+            <h1><%= question.title %> 
+              <p><small><%= question.detail %></small></p>
+            </h1>
+          </div>
+          <div class="col-md-4">
+            <h3 class="text-right">Post by: <%= question.user %></h3>
+            <h6 class="text-right"><%= question.date %></h6>
+          </div>
+        </div>
+      </div> 
+
+      <!-- answers -->
+      <% for(i = 0; i < answers.length; i++) { %> 
+      <p>
+        <h3 class="text-left"><%= answers[i].user%></h3>
+        <%= answers[i].body%>
+      </p>
+      <% } %>
+      <!-- TODO: timeline, link to user profile, vote -->
 
       <!-- text editor -->
-      <div>
-        <form>
-
-            <textarea name="editor1" id="editor1" rows="10" cols="80">
-                
-            </textarea>
-            <script>
-                // Replace the <textarea id="editor1"> with a CKEditor
-                // instance, using default configuration.
-                CKEDITOR.replace( 'editor1' );
-            </script>
-        </form>
-        <button>abc</button>
-      </div>
+      <form action="#" method="post" id="answer">
+        <label>Your answer</label>
+        <textarea class="form-control" name="answer_body" rows="3"></textarea>
+        <p>
+          <button type="submit" class="btn btn-primary col-md-1 col-md-offset-11">Submit</button>
+        </p>
+      </form>
     </div>
     
 
@@ -136,6 +144,9 @@
     
     <script>
       document.getElementById("question").action = "/user/" + "<%= username%>" + "/questions";
+    </script>
+    <script>
+      document.getElementById("answer").action = "/questions/" + "<%= question._id%>";
     </script>
   </body>
 </html>

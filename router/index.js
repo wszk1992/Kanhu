@@ -3,9 +3,9 @@ var router = express.Router();
 
 router.get('/', function(req, res) {
  	if(!req.session.user){                     //到达/home路径首先判断是否已经登录
-        req.session.error = "请先登录"
+//      req.session.error = "请先登录"
         res.redirect("/login");                //未登录则重定向到 /login 路径
-    } 
+    }
 	res.render('index.html', {title: 'Kanhu', username: req.session.user});
 });
 
@@ -96,6 +96,7 @@ router.get('/user/:id', function(req, res) {
 	var id = req.params.id;
 	var User = global.dbHandel.getModel('user');
 	var Question = global.dbHandel.getModel('question');
+	var Answer = global.dbHandel.getModel('answer');
 	User.findOne({username: id}, function(err, doc) {
 		if(err) {
 			console.log(err);
@@ -103,16 +104,26 @@ router.get('/user/:id', function(req, res) {
 			res.sendStatus(500);
 		}else if(doc) {
 			if(id == req.session.user) {
-				Question.find({}, function(err, doc) {
+				Question.find({user: id},null,{sort:{_id:-1}}, function(err, docq) {
 					if(err) {
 						console.log(err);
 						req.session.error = 'Internet Error';
 						res.sendStatus(500);
-					}else {
-						res.render('user.html', {username: id, myQuestions: doc});
 					}
+					Answer.find({user: id},null,{sort:{_id:-1}}, function(err, doca) {
+						if(err) {
+							console.log(err);
+							req.session.error = 'Internet Error';
+							res.sendStatus(500);
+						}
+						res.render('user.html', {username: id, myQuestions: docq, myAnswers: doca});
+					});
+					
 				});
+				
+				
 			}else {
+				//TODO: visit other's profile
 				req.session.error = "Cannot browse other's profile yet";
 				res.redirect("/");
 			}
@@ -147,16 +158,73 @@ router.post('/user/:id/questions', function(req, res) {
 	});
 });
 
-router.get('/questions/:id', function(req, res) {
-	var id = req.params.id;
+router.get("/questions", function(req, res) {
 	var Question = global.dbHandel.getModel('question');
-	Question.findOne({_id: id}, function(err, doc) {
+	Question.find({},null,{sort:{_id:-1}}, function(err, doc) {
 		if(err) {
 			console.log(err);
 			req.session.error = 'Internet Error';
 			res.sendStatus(500);
-		}else if(doc) {
-			res.render('question.html', {question: doc, username: req.session.user});
+		}else {
+			res.render('questions.html', {questions: doc, username: req.session.user});
+		}
+	});
+});
+
+router.post('/questions/:id', function(req, res) {
+	//TODO: prevent post when the user doesn't login(no session)
+	var Answer = global.dbHandel.getModel('answer');
+	var Question = global.dbHandel.getModel('question');
+	Question.findOne({_id: req.params.id}, function(err, docq) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else if(docq) {
+			Answer.create({
+			questionId: docq._id,
+			questionTitle: docq.title,
+			user: req.session.user,
+			body: req.body.answer_body
+			}, function(err) {
+						if(err) {
+							console.log(err);
+							res.sendStatus(500);
+						}else {
+							console.log('post answer successfully');
+							//req.session.success = 'post question successfully';
+							//res.sendStatus(200);
+							//TODO: redirect to question page
+							res.redirect("/questions/" + req.params.id);
+						}
+			});
+		}else {
+			req.session.error = "No such question";
+			res.sendStatus(404);
+		}
+	})
+	
+});
+
+router.get('/questions/:id', function(req, res) {
+	var id = req.params.id;
+	var Question = global.dbHandel.getModel('question');
+	var Answer = global.dbHandel.getModel('answer');
+	Question.findOne({_id: id}, function(err, docq) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else if(docq) {
+			Answer.find({questionId: id}, function(err, doca) {
+				if(err) {
+					console.log(err);
+					req.session.error = 'Internet Error';
+					res.sendStatus(500);
+				}else {
+					res.render('question.html', {question: docq, answers: doca, username: req.session.user});
+				}
+			});
 		}else {
 			req.session.error = "No such question";
 			res.sendStatus(404);

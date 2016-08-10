@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="/favicon.ico">
 
-    <title><%= title %></title>
+    <title>Questions</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/stylesheets/bootstrap.min.css" rel="stylesheet">
@@ -101,13 +101,26 @@
     </div>  
       <!-- Main component for a primary marketing message or call to action -->
     <div class="container">
-      <h1>Welcome to KanHu!</h1>
+      <h1>Questions</h1>
+       <!-- Questions list -->
+          <% for(i = 0; i < questions.length; i++) { %> 
+            <div class="page-header"> 
+              <div class="row"> 
+                <div class="col-md-8">
+                  <h3><a href="/questions/<%= questions[i]._id %>">
+                    <%= questions[i].title %></a>
+                  </h3>
+                  <small><%= questions[i].detail %></small>
+                </div>
+                <div class="col-md-4">
+                  <h3 class="text-right">Post by: <%= questions[i].user %></h3>
+                  <h6 class="text-right"><%= questions[i].date %></h6>
+                </div>
+              </div>
+            </div> 
+          <% } %> 
     </div> <!-- /container -->
 
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
     <script src="javascripts/jquery-3.1.0.min.js"></script>
     <script src="javascripts/bootstrap.min.js"></script>
   </body>

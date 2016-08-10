@@ -6,13 +6,14 @@ module.exports = {
 	},
 
 	answer:{
-		questionId: Number,
+		questionId: String,
+		questionTitle: String,
 		user: String, 
 		date: {type: Date, default: Date.now},
-		body: String, 
+		body: String,
 		meta: {
-			votes: Number,
-			vetos: Number
+			votes: {type: Number, default: 0},
+			vetos: {type: Number, default: 0}
 		}
 	},
 
@@ -20,8 +21,7 @@ module.exports = {
 		title: String,
 		detail: String,
 		user: String,
-		date: {type: Date, default: Date.now},
-		answers: [{answerId: Number}]
+		date: {type: Date, default: Date.now}
 	},
 
 	user_QandA:{
