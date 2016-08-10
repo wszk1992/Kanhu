@@ -16,6 +16,7 @@ var app = express();
 //database
 global.dbHandel = require('./database/dbHandel');
 var url = "mongodb://wszk1992:123456@ds042729.mlab.com:42729/kanhudatabase";
+//var localurl = "mongodb://localhost:"
 global.db = mongoose.connect(url);
 
 //session
@@ -88,8 +89,8 @@ app.use(function(err, req, res, next) {
 	});
 });
 
-var port = process.env.PORT || 1337;
+var port = process.env.PORT || 3000;
 
 var server = app.listen(port, function() {
-	console.log("Express on port 1337!");
+	console.log("Express on port 3000!");
 });
