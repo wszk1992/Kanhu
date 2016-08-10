@@ -91,5 +91,5 @@ app.use(function(err, req, res, next) {
 var port = process.env.PORT || 1337;
 
 var server = app.listen(port, function() {
-	console.log("Express on port 3000!");
+	console.log("Express on port 1337!");
 });
