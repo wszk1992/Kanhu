@@ -158,6 +158,29 @@ router.post('/user/:id/questions', function(req, res) {
 	});
 });
 
+router.post('questions/:qid', function(req, res) {
+	console.log("begin remove the question from db");
+	var qid = req.params.qid;
+	var Question = global.dbHandel.getModel('question');
+	var Answer = global.dbHandel.getModel('answer');
+	Question.remove({_id:qid}, function(err) {
+		if(err) {
+			console.log(err);
+			res.sendStatus(500);
+		}else {
+			Answer.remove({questionId: qid}, function(err) {
+				if(err) {
+					console.log(err);
+					res.sendStatus(500);
+				}else {
+					console.log("remove the question from db");
+					res.redirect('/questions');
+				}
+			});
+		}
+	});
+});
+
 router.get("/questions", function(req, res) {
 	var Question = global.dbHandel.getModel('question');
 	Question.find({},null,{sort:{_id:-1}}, function(err, doc) {

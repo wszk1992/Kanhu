@@ -116,11 +116,22 @@
             <!-- Questions list -->
               <% for(i = 0; i < myQuestions.length; i++) { %> 
                 <div class="page-header"> 
-                  <div class="row"> 
+                  <div class="row">
+                    <form id="deleteForm" name="form" method="delete" action="">
+                      <span style="color:grey" class="glyphicon glyphicon-remove" aria-hidden="true" onclick="del();"></span>
+                    </form>
+                    <script type="text/javascript">
+                      function del(){
+                          if(confirm('Are you sure to delete this question? You cannot recover it after delete!')){
+                            document.getElementById("deleteForm").action = "/questions/"+"<%= myQuestions[i]._id%>";
+                            document.getElementById("deleteForm").submit();
+                        }
+                      }
+                    </script>
                     <div class="col-md-8">
                       <h3>
                         <a href="/questions/<%= myQuestions[i]._id %>"><%= myQuestions[i].title %></a>
-                        <span style="float:right; height: 50%" class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        <!-- <span style="float:right;color:grey; font-size: 50%">delete</span> -->
                         <p><small><%= myQuestions[i].detail %></small></p>
                       </h3>
                     </div>
@@ -155,6 +166,9 @@
     <script src="/javascripts/bootstrap.min.js"></script>
     <script>
       document.getElementById("question").action = "/user/" + "<%= username%>" + "/questions";
+    </script>
+    <script type="text/javascript">
+      
     </script>
   </body>
 </html>
