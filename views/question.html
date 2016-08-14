@@ -21,12 +21,15 @@
     <![endif]-->
     <style type="text/css">
       body {
-      padding-top: 50px;
-    }
+        padding-top: 50px;
+      }
       h3 {
         color: #428bca;
       }
-
+      #answerFunc li{
+        display: inline-block;
+        padding-right: 1%;
+      }
     </style>
   </head>
 
@@ -109,19 +112,42 @@
             </h1>
           </div>
           <div class="col-md-4">
-            <h3 class="text-right">Post by: <%= question.user %></h3>
+            <h3 class="text-right">Posted by: <%= question.user %></h3>
             <h6 class="text-right"><%= question.date %></h6>
           </div>
         </div>
       </div> 
 
       <!-- answers -->
-      <% for(i = 0; i < answers.length; i++) { %> 
-      <p>
-        <h3 class="text-left"><%= answers[i].user%></h3>
-        <%= answers[i].body%>
-      </p>
-      <% } %>
+      <table class="table table-hover">
+        <tbody>
+          <% for(i = 0; i < answers.length; i++) { %> 
+            <tr><th>
+            <div class="row">
+              <div class="col-md-1">
+                <p id="vote<%= i %>" onclick="vote(this)">
+                  <span class="glyphicon glyphicon-chevron-up" aria-hidden="true" onmouseover="voteOver(this)" onmouseout="mOut(this)"></span>
+                  <span id="showvote<%= i %>"><%= answers[i].votes%></span>
+                </p>
+                <p id="veto<%= i %>" onclick="veto(this)">
+                  <span class="glyphicon glyphicon-chevron-down" aria-hidden="true" onmouseover="vetoOver(this)" onmouseout="mOut(this)"></span>
+                  <span id="showveto<%= i %>"><%= answers[i].vetos%></span>
+                </p>
+              </div>
+              <div class="col-md-11">
+                  <a><%= answers[i].user%>:</a>
+                  <p><%= answers[i].body%></p>
+                  <div id="answerFunc">
+                    <li><a style="color:grey">reply</a></li>
+                    <li><a style="color:grey">delete</a></li>
+                    <li><a style="color:grey">more</a></li>
+                  </div>
+              </div>
+            </div>
+            </th></tr>
+          <% } %>
+        </tbody>
+      </table>
       <!-- TODO: timeline, link to user profile, vote -->
 
       <!-- text editor -->
@@ -144,9 +170,22 @@
     
     <script>
       document.getElementById("question").action = "/user/" + "<%= username%>" + "/questions";
-    </script>
-    <script>
       document.getElementById("answer").action = "/questions/" + "<%= question._id%>";
+      function voteOver(obj) {
+        obj.style = "color:red";
+      }
+      function vetoOver(obj) {
+        obj.style = "color:green";
+      }
+      function mOut(obj) {
+        obj.style = "color:black";
+      }
+      function vote(obj) {
+        document.getElementById("show"+obj.id).innerHTML = Number(document.getElementById("show"+obj.id).innerHTML) + 1;
+      }
+      function veto(obj) {
+        document.getElementById("show"+obj.id).innerHTML = Number(document.getElementById("show"+obj.id).innerHTML) + 1;
+      }
     </script>
   </body>
 </html>

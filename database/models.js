@@ -11,10 +11,8 @@ module.exports = {
 		user: String, 
 		date: {type: Date, default: Date.now},
 		body: String,
-		meta: {
-			votes: {type: Number, default: 0},
-			vetos: {type: Number, default: 0}
-		}
+		votes: {type: Number, default: 0},
+		vetos: {type: Number, default: 0}
 	},
 
 	question:{
