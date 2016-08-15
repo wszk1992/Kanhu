@@ -22,9 +22,18 @@ module.exports = {
 		date: {type: Date, default: Date.now}
 	},
 
-	user_QandA:{
-		username: String,
-		questions: [{questionId: Number}],
-		answers: [{answerId: Number}]
+	vote: {
+		questionId: String,
+		answerId: String,
+		user: String,
+		date: {type: Date, default: Date.now},
+		vote: {type: Boolean, default: 0},
+		veto: {type: Boolean, default: 0}
 	}
+
+	// user_QandA:{
+	// 	username: String,
+	// 	questions: [{questionId: Number}],
+	// 	answers: [{answerId: Number}]
+	// }
 };

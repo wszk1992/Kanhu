@@ -1,12 +1,12 @@
 var express = require("express");
 var path = require('path'); // 第三方中间件
 var mongoose = require("mongoose");
-//var multer = require('multer');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+
 
 //route
 var routes = require('./router/index');

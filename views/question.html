@@ -121,17 +121,18 @@
       <!-- answers -->
       <table class="table table-hover">
         <tbody>
-          <% for(i = 0; i < answers.length; i++) { %> 
+          <% for(i = 0, j = 0; i < answers.length; i++) { %>
+          <% if(j >= votes.lenth || answers[i]._id != votes[j].answerId) {vote_status = 0;} else {vote_status = votes[j].vote;j++;} %>
             <tr><th>
             <div class="row">
               <div class="col-md-1">
-                <p id="vote<%= i %>" onclick="vote(this)">
-                  <span class="glyphicon glyphicon-chevron-up" aria-hidden="true" onmouseover="voteOver(this)" onmouseout="mOut(this)"></span>
-                  <span id="showvote<%= i %>"><%= answers[i].votes%></span>
+                <p>
+                  <span class="glyphicon glyphicon-chevron-up" aria-hidden="true" onmouseover="voteOver(this)" onmouseout="voteOut(this, '<%= vote_status%>')" onclick="vote(this, '<%= answers[i]._id%>', '<%= vote_status%>')"></span>
+                  <span id="showvote<%= answers[i]._id%>"><%= answers[i].votes%></span>
                 </p>
-                <p id="veto<%= i %>" onclick="veto(this)">
-                  <span class="glyphicon glyphicon-chevron-down" aria-hidden="true" onmouseover="vetoOver(this)" onmouseout="mOut(this)"></span>
-                  <span id="showveto<%= i %>"><%= answers[i].vetos%></span>
+                <p>
+                  <span class="glyphicon glyphicon-chevron-down" aria-hidden="true" onmouseover="vetoOver(this)" onmouseout="vetoOut(this, '<%= votes[i].status%>')" onclick="veto(this, '<%= answers[i]._id%>', '<%= votes[i].status%>')"></span>
+                  <span id="showveto<%= answers[i]._id%>"><%= answers[i].vetos%></span>
                 </p>
               </div>
               <div class="col-md-11">
@@ -171,20 +172,50 @@
     <script>
       document.getElementById("question").action = "/user/" + "<%= username%>" + "/questions";
       document.getElementById("answer").action = "/questions/" + "<%= question._id%>";
+
+
       function voteOver(obj) {
         obj.style = "color:red";
       }
       function vetoOver(obj) {
         obj.style = "color:green";
       }
-      function mOut(obj) {
-        obj.style = "color:black";
+      function voteOut(obj, status) {
+        if(status) {
+          obj.style = "color:red";
+        }else {
+          obj.style = "color:black";
+        }
       }
-      function vote(obj) {
-        document.getElementById("show"+obj.id).innerHTML = Number(document.getElementById("show"+obj.id).innerHTML) + 1;
+      function vetoOut(obj, status) {
+        if(status) {
+          obj.style = "color:green";
+        }else {
+          obj.style = "color:black";
+        }
       }
-      function veto(obj) {
-        document.getElementById("show"+obj.id).innerHTML = Number(document.getElementById("show"+obj.id).innerHTML) + 1;
+      function vote(this, id, status) {
+        if(status) {
+          document.getElementById("showvote" + id).innerHTML = Number(document.getElementById("showvote" + id).innerHTML) - 1;
+          this.style = "color: black";
+          $.ajax({url:"/answers/" + id + "/vote?status=1"});
+        }else {
+          document.getElementById("showvote" + id).innerHTML = Number(document.getElementById("showvote" + id).innerHTML) + 1;
+          this.style = "color: red";
+          $.ajax({url:"/answers/" + id + "/vote?status=0"});
+        }
+        
+      }
+      function veto(this, id, status) {
+        if(status) {
+          document.getElementById("showveto" + id).innerHTML = Number(document.getElementById("showveto" + id).innerHTML) - 1;
+          this.style = "color: black";
+          $.ajax({url:"/answers/" + id + "/veto?status=1"});
+        }else {
+          document.getElementById("showveto" + id).innerHTML = Number(document.getElementById("showveto" + id).innerHTML) + 1;
+          this.style = "color: green";
+          $.ajax({url:"/answers/" + id + "/veto?status=0"});
+        }
       }
     </script>
   </body>

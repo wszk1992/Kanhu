@@ -1,4 +1,5 @@
 var express = require('express');
+var url = require('url');
 var router = express.Router();
 
 router.get('/', function(req, res) {
@@ -158,28 +159,28 @@ router.post('/user/:id/questions', function(req, res) {
 	});
 });
 
-router.post('questions/:qid', function(req, res) {
-	console.log("begin remove the question from db");
-	var qid = req.params.qid;
-	var Question = global.dbHandel.getModel('question');
-	var Answer = global.dbHandel.getModel('answer');
-	Question.remove({_id:qid}, function(err) {
-		if(err) {
-			console.log(err);
-			res.sendStatus(500);
-		}else {
-			Answer.remove({questionId: qid}, function(err) {
-				if(err) {
-					console.log(err);
-					res.sendStatus(500);
-				}else {
-					console.log("remove the question from db");
-					res.redirect('/questions');
-				}
-			});
-		}
-	});
-});
+// router.post('questions/:qid', function(req, res) {
+// 	console.log("begin remove the question from db");
+// 	var qid = req.params.qid;
+// 	var Question = global.dbHandel.getModel('question');
+// 	var Answer = global.dbHandel.getModel('answer');
+// 	Question.remove({_id:qid}, function(err) {
+// 		if(err) {
+// 			console.log(err);
+// 			res.sendStatus(500);
+// 		}else {
+// 			Answer.remove({questionId: qid}, function(err) {
+// 				if(err) {
+// 					console.log(err);
+// 					res.sendStatus(500);
+// 				}else {
+// 					console.log("remove the question from db");
+// 					res.redirect('/questions');
+// 				}
+// 			});
+// 		}
+// 	});
+// });
 
 router.get("/questions", function(req, res) {
 	var Question = global.dbHandel.getModel('question');
@@ -231,21 +232,31 @@ router.post('/questions/:id', function(req, res) {
 
 router.get('/questions/:id', function(req, res) {
 	var id = req.params.id;
+	var userId = req.session.user;
 	var Question = global.dbHandel.getModel('question');
 	var Answer = global.dbHandel.getModel('answer');
+	var Vote = global.dbHandel.getModel('vote');
 	Question.findOne({_id: id}, function(err, docq) {
 		if(err) {
 			console.log(err);
 			req.session.error = 'Internet Error';
 			res.sendStatus(500);
 		}else if(docq) {
-			Answer.find({questionId: id}, function(err, doca) {
+			Answer.find({questionId: id},null,{sort:{_id:1}}, function(err, doca) {
 				if(err) {
 					console.log(err);
 					req.session.error = 'Internet Error';
 					res.sendStatus(500);
 				}else {
-					res.render('question.html', {question: docq, answers: doca, username: req.session.user});
+					Vote.find({questionId: id, user: userId}, null, {sort:{answerId:1}}, function(err, docv) {
+						if(err) {
+							console.log(err);
+							req.session.error = 'Internet Error';
+							res.sendStatus(500);
+						}else {
+							res.render('question.html', {question: docq, answers: doca, votes: docv, username: userId});
+						}
+					})
 				}
 			});
 		}else {
@@ -259,6 +270,56 @@ router.get('/users', function(req, res) {
 	var User = global.dbHandel.getModel('user');
 	User.find({}, function(req, doc) {
 		res.send(doc);
+	});
+});
+
+router.get('/answers/:id/vote?status=:voted', function(req, res) {
+	var Answer = global.dbHandel.getModel('answer');
+	var Vote = global.dbHandel.getModel('vote');
+	var userId = req.session.user;
+	var voted = req.params.voted;
+	var id = req.params.id;
+	Answer.find({_id: id}, function(err, doc) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else if(!doc) {
+			req.session.error = "No such answer";
+			res.sendStatus(404);
+		}else {
+			if(voted) {
+				doc.votes -= 1;
+			}else {
+				doc.votes += 1;
+			}
+			Vote.find({answerId: id, user: userId}, function(err, docv) {
+				if(err) {
+					console.log(err);
+					req.session.error = 'Internet Error';
+					res.sendStatus(500);
+				}else if(!docv) {
+					if(voted) {
+						req.session.error = "No such vote";
+						res.sendStatus(500);
+					}else {
+						Vote.create({
+							questionId: doc.questionId,
+							answerId: id,
+							user: userId,
+							vote: 1
+						}, function(err) {
+							if(err) {
+								console.log(err);
+								res.sendStatus(500);
+							}
+						});
+					}
+				}else {
+					docv.vote = !docv.vote;
+				}
+			});
+		}
 	});
 });
 
