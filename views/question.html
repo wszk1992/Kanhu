@@ -118,7 +118,12 @@
           <button type="submit" class="btn btn-primary col-md-1 col-md-offset-11">Submit</button>
         </p>
       </form>
+
+      <p id="testarea"></p>
+
     </div>
+
+
     
 
 
@@ -131,6 +136,8 @@
     <script>
       document.getElementById("question").action = "/user/" + "<%= username%>" + "/questions";
       document.getElementById("answer").action = "/questions/" + "<%= question._id%>";
+
+      document.getElementById("testarea").innerHTML = str;
       function voteOver(obj) {
         obj.style = "color:red";
       }
@@ -177,6 +184,8 @@
           veto_status[index] = 'true';
         }
       }
+
+
     </script>
   </body>
 </html>
