@@ -15,8 +15,8 @@ var app = express();
 
 //database
 global.dbHandel = require('./database/dbHandel');
-//var url = "mongodb://wszk1992:123456@ds042729.mlab.com:42729/kanhudatabase";
-var url = "mongodb://localhost:27017/nodedb"
+var url = "mongodb://wszk1992:123456@ds042729.mlab.com:42729/kanhudatabase";
+//var url = "mongodb://localhost:27017/nodedb"
 global.db = mongoose.connect(url);
 
 //session
