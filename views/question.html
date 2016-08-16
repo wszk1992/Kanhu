@@ -34,73 +34,7 @@
   </head>
 
   <body>
-    <!-- Static navbar -->
-    <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">侃乎</a>
-          </div>
-          <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-              <li><a href="#">Home</a></li>
-              <li><a href="/questions">Questions</a></li>
-              <li><a href="https://github.com/wszk1992/Kanhu">Github</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-              <li>
-                <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary navbar-btn " data-toggle="modal" data-target=".bs-example-modal-lg">
-                  Ask
-                </button>  
-              </li>
-
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= username %><span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  <li><a href="/user/<%= username%>" id="profile">Profile</a></li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li role="separator" class="divider"></li>
-                  <li class="dropdown-header">Nav header</li>
-                  <li><a href="#">Separated link</a></li>
-                  <li><a href="/logout">Logout</a></li>
-                </ul>
-              </li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
-      </div>
-    </nav>
-
-    <!-- Question Modal -->
-    <div class="modal fade bs-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-      <div id="question-submit" class="modal-dialog" role="document">
-        <form action='#' id="question" method="post">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <label for="myModaltitle">Question:</label>
-              <input class="form-control" id="myModaltitle" autofocus="autofocus" name="question_title" placeholder="Question title" required>
-            </div>
-            <div class="modal-body">
-              <label for="myModalcontent">Details:</label>
-              <textarea class="form-control" rows="3" name="question_details"></textarea>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>  
+    <% include top.html %>      
 
     <div class="container">
       <!-- question -->
@@ -121,19 +55,44 @@
       <!-- answers -->
       <table class="table table-hover">
         <tbody>
+        <script>
+          vote_status = new Array();
+          veto_status = new Array();
+        </script>
           <% for(i = 0, j = 0; i < answers.length; i++) { %>
-          <% if(j >= votes.lenth || answers[i]._id != votes[j].answerId) {vote_status = 0;} else {vote_status = votes[j].vote;j++;} %>
+          <% if(j < votes.length && answers[i]._id == votes[j].answerId){ %>
+          <script>
+            vote_status['<%=i%>'] = '<%=votes[j].vote%>';
+            veto_status['<%=i%>'] = '<%=votes[j].veto%>';
+          </script>
+          <% j++;}else { %>
+          <script>
+            vote_status['<%=i%>'] = 'false';
+            veto_status['<%=i%>'] = 'false';
+          </script>
+          <%} %>
+          
             <tr><th>
             <div class="row">
               <div class="col-md-1">
                 <p>
-                  <span class="glyphicon glyphicon-chevron-up" aria-hidden="true" onmouseover="voteOver(this)" onmouseout="voteOut(this, '<%= vote_status%>')" onclick="vote(this, '<%= answers[i]._id%>', '<%= vote_status%>')"></span>
-                  <span id="showvote<%= answers[i]._id%>"><%= answers[i].votes%></span>
+                  <span id="vote<%= i%>" class="glyphicon glyphicon-chevron-up" aria-hidden="true" onmouseover="voteOver(this)" onmouseout="voteOut(this, '<%= i%>')" onclick="vote(this, '<%= answers[i]._id%>', '<%= i%>')"></span>
+                  <span id="showvote<%= i%>"><%= answers[i].votes%></span>
                 </p>
                 <p>
-                  <span class="glyphicon glyphicon-chevron-down" aria-hidden="true" onmouseover="vetoOver(this)" onmouseout="vetoOut(this, '<%= votes[i].status%>')" onclick="veto(this, '<%= answers[i]._id%>', '<%= votes[i].status%>')"></span>
-                  <span id="showveto<%= answers[i]._id%>"><%= answers[i].vetos%></span>
+                  <span id="veto<%= i%>" class="glyphicon glyphicon-chevron-down" aria-hidden="true" onmouseover="vetoOver(this)" onmouseout="vetoOut(this, '<%= i%>')" onclick="veto(this, '<%= answers[i]._id%>', '<%= i%>')"></span>
+                  <span id="showveto<%= i%>"><%= answers[i].vetos%></span>
                 </p>
+                <script>
+                  if(vote_status['<%=i%>'] == 'false')
+                    document.getElementById("vote<%= i%>").style = "color: black";
+                  else 
+                    document.getElementById("vote<%= i%>").style = "color: red";
+                  if(veto_status['<%=i%>'] == 'false')
+                    document.getElementById("veto<%= i%>").style = "color: black";
+                  else 
+                    document.getElementById("veto<%= i%>").style = "color: green";
+                </script>
               </div>
               <div class="col-md-11">
                   <a><%= answers[i].user%>:</a>
@@ -172,49 +131,50 @@
     <script>
       document.getElementById("question").action = "/user/" + "<%= username%>" + "/questions";
       document.getElementById("answer").action = "/questions/" + "<%= question._id%>";
-
-
       function voteOver(obj) {
         obj.style = "color:red";
       }
       function vetoOver(obj) {
         obj.style = "color:green";
       }
-      function voteOut(obj, status) {
-        if(status) {
+      function voteOut(obj, index) {
+        if(vote_status[index] == 'true') {
           obj.style = "color:red";
         }else {
           obj.style = "color:black";
         }
       }
-      function vetoOut(obj, status) {
-        if(status) {
+      function vetoOut(obj, index) {
+        if(veto_status[index] == 'true') {
           obj.style = "color:green";
         }else {
           obj.style = "color:black";
         }
       }
-      function vote(this, id, status) {
-        if(status) {
-          document.getElementById("showvote" + id).innerHTML = Number(document.getElementById("showvote" + id).innerHTML) - 1;
-          this.style = "color: black";
-          $.ajax({url:"/answers/" + id + "/vote?status=1"});
+      function vote(obj, id, index) {
+        if(vote_status[index] == 'true') {
+          document.getElementById("showvote" + index).innerHTML = Number(document.getElementById("showvote" + index).innerHTML) - 1;
+          obj.style = "color: black";
+          $.get("/answers/" + id + "/vote?status=1");
+          vote_status[index] = 'false';
         }else {
-          document.getElementById("showvote" + id).innerHTML = Number(document.getElementById("showvote" + id).innerHTML) + 1;
-          this.style = "color: red";
-          $.ajax({url:"/answers/" + id + "/vote?status=0"});
+          document.getElementById("showvote" + index).innerHTML = Number(document.getElementById("showvote" + index).innerHTML) + 1;
+          obj.style = "color: red";
+          $.get("/answers/" + id + "/vote?status=0");
+          vote_status[index] = 'true';
         }
-        
       }
-      function veto(this, id, status) {
-        if(status) {
-          document.getElementById("showveto" + id).innerHTML = Number(document.getElementById("showveto" + id).innerHTML) - 1;
-          this.style = "color: black";
-          $.ajax({url:"/answers/" + id + "/veto?status=1"});
+      function veto(obj, id, index) {
+        if(veto_status[index] == 'true') {
+          document.getElementById("showveto" + index).innerHTML = Number(document.getElementById("showveto" + index).innerHTML) - 1;
+          obj.style = "color: black";
+          $.get("/answers/" + id + "/veto?status=1");
+          veto_status[index] = 'false';
         }else {
-          document.getElementById("showveto" + id).innerHTML = Number(document.getElementById("showveto" + id).innerHTML) + 1;
-          this.style = "color: green";
-          $.ajax({url:"/answers/" + id + "/veto?status=0"});
+          document.getElementById("showveto" + index).innerHTML = Number(document.getElementById("showveto" + index).innerHTML) + 1;
+          obj.style = "color: green";
+          $.get("/answers/" + id + "/veto?status=0");
+          veto_status[index] = 'true';
         }
       }
     </script>

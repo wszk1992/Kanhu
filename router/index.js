@@ -2,19 +2,13 @@ var express = require('express');
 var url = require('url');
 var router = express.Router();
 
+router.get('/', logincheck);
 router.get('/', function(req, res) {
- 	if(!req.session.user){                     //到达/home路径首先判断是否已经登录
-//      req.session.error = "请先登录"
-        res.redirect("/login");                //未登录则重定向到 /login 路径
-    }
 	res.render('index.html', {title: 'Kanhu', username: req.session.user});
 });
 
-
+router.get('/login', logoutcheck);
 router.get('/login', function(req, res) {
-	if(req.session.user){                     //到达/home路径首先判断是否已经登录
-        res.redirect("/");                //未登录则重定向到 /login 路径
-    } 
 	res.render('login.html', {title: 'Login'});
 });
 
@@ -42,13 +36,14 @@ router.post('/login', function(req, res) {
 		}
 	});
 });
-
+router.get('/logout', logincheck);
 router.get('/logout', function(req, res) {
 	req.session.user = null;
 	req.session.error = null;
 	res.redirect("/login");
 });
 
+router.get('/register', logoutcheck);
 router.get('/register', function(req, res) {
 	res.render('register.html', {title: 'Register'});
 });
@@ -93,6 +88,7 @@ router.post('/register', function(req, res) {
 	}
 });
 
+router.get('/user/:id', logincheck);
 router.get('/user/:id', function(req, res) {
 	var id = req.params.id;
 	var User = global.dbHandel.getModel('user');
@@ -182,6 +178,7 @@ router.post('/user/:id/questions', function(req, res) {
 // 	});
 // });
 
+router.get("/questions", logincheck);
 router.get("/questions", function(req, res) {
 	var Question = global.dbHandel.getModel('question');
 	Question.find({},null,{sort:{_id:-1}}, function(err, doc) {
@@ -206,10 +203,10 @@ router.post('/questions/:id', function(req, res) {
 			res.sendStatus(500);
 		}else if(docq) {
 			Answer.create({
-			questionId: docq._id,
-			questionTitle: docq.title,
-			user: req.session.user,
-			body: req.body.answer_body
+				questionId: docq._id,
+				questionTitle: docq.title,
+				user: req.session.user,
+				body: req.body.answer_body
 			}, function(err) {
 						if(err) {
 							console.log(err);
@@ -230,42 +227,49 @@ router.post('/questions/:id', function(req, res) {
 	
 });
 
+router.get('/questions/:id', logincheck);
 router.get('/questions/:id', function(req, res) {
 	var id = req.params.id;
 	var userId = req.session.user;
 	var Question = global.dbHandel.getModel('question');
 	var Answer = global.dbHandel.getModel('answer');
 	var Vote = global.dbHandel.getModel('vote');
-	Question.findOne({_id: id}, function(err, docq) {
+	var docq, doca;
+	Question.findOne({_id: id}).exec(function(err, doc) {
 		if(err) {
 			console.log(err);
 			req.session.error = 'Internet Error';
 			res.sendStatus(500);
-		}else if(docq) {
-			Answer.find({questionId: id},null,{sort:{_id:1}}, function(err, doca) {
-				if(err) {
-					console.log(err);
-					req.session.error = 'Internet Error';
-					res.sendStatus(500);
-				}else {
-					Vote.find({questionId: id, user: userId}, null, {sort:{answerId:1}}, function(err, docv) {
-						if(err) {
-							console.log(err);
-							req.session.error = 'Internet Error';
-							res.sendStatus(500);
-						}else {
-							res.render('question.html', {question: docq, answers: doca, votes: docv, username: userId});
-						}
-					})
-				}
-			});
-		}else {
+		}else if(!doc) {
 			req.session.error = "No such question";
 			res.sendStatus(404);
+		}else {
+			docq = doc;
+		}
+	});
+
+	Answer.find({questionId: id},null,{sort:{_id:1}}).exec(function(err, doc) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else {
+			doca = doc;
+		}
+	});
+
+	Vote.find({questionId: id, user: userId}, null, {sort:{answerId:1}}).exec(function(err, docv) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else {
+			res.render('question.html', {title: docq.title, question: docq, answers: doca, votes: docv, username: userId});
 		}
 	});
 });
 
+router.get('/users', logincheck);
 router.get('/users', function(req, res) {
 	var User = global.dbHandel.getModel('user');
 	User.find({}, function(req, doc) {
@@ -273,13 +277,17 @@ router.get('/users', function(req, res) {
 	});
 });
 
-router.get('/answers/:id/vote?status=:voted', function(req, res) {
+router.get('/answers/:id/:v', logincheck);
+router.get('/answers/:id/:v', function(req, res) {
 	var Answer = global.dbHandel.getModel('answer');
 	var Vote = global.dbHandel.getModel('vote');
 	var userId = req.session.user;
-	var voted = req.params.voted;
+	var voted = req.query.status;
 	var id = req.params.id;
-	Answer.find({_id: id}, function(err, doc) {
+	var flag = req.params.v;
+	var doca;
+	console.log("status: " + voted);
+	Answer.findOne({_id: id}).exec(function(err, doc) {
 		if(err) {
 			console.log(err);
 			req.session.error = 'Internet Error';
@@ -288,45 +296,94 @@ router.get('/answers/:id/vote?status=:voted', function(req, res) {
 			req.session.error = "No such answer";
 			res.sendStatus(404);
 		}else {
-			if(voted) {
-				doc.votes -= 1;
-			}else {
-				doc.votes += 1;
-			}
-			Vote.find({answerId: id, user: userId}, function(err, docv) {
-				if(err) {
-					console.log(err);
-					req.session.error = 'Internet Error';
-					res.sendStatus(500);
-				}else if(!docv) {
-					if(voted) {
-						req.session.error = "No such vote";
-						res.sendStatus(500);
-					}else {
-						Vote.create({
-							questionId: doc.questionId,
-							answerId: id,
-							user: userId,
-							vote: 1
-						}, function(err) {
-							if(err) {
-								console.log(err);
-								res.sendStatus(500);
-							}
-						});
-					}
+			if(flag == "vote")
+				if(voted == '1') {
+					doc.votes--;
 				}else {
-					docv.vote = !docv.vote;
+					doc.votes++;
 				}
-			});
+			else {
+				if(voted == '1') {
+					doc.vetos--;
+				}else {
+					doc.vetos++;
+				}
+			}
+			doc.save();
+			doca = doc;
+			console.log(doc.votes);
+		}
+	});
+	Vote.findOne({answerId: id, user: userId}).exec(function(err, docv) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else if(!docv) {
+			if(voted == '1') {
+				req.session.error = "No such vote";
+				res.sendStatus(500);
+			}else {
+				if(flag == "vote") {
+					Vote.create({
+						questionId: doca.questionId,
+						answerId: id,
+						user: userId,
+						vote: 1
+					}, function(err) {
+						if(err) {
+							console.log(err);
+							res.sendStatus(500);
+						}else {
+							console.log("create vote successfully!");
+						}
+					});
+				}else {
+					Vote.create({
+						questionId: doca.questionId,
+						answerId: id,
+						user: userId,
+						veto: 1
+					}, function(err) {
+						if(err) {
+							console.log(err);
+							res.sendStatus(500);
+						}else {
+							console.log("create veto successfully!");
+						}
+					});
+				}
+			}
+		}else {
+			if(flag == "vote") {
+				docv.vote = !docv.vote;
+			}else {
+				docv.veto = !docv.veto;
+			}
+			console.log("change the vote/veto");
+			docv.save();
 		}
 	});
 });
 
-
-
 router.get('/about', function(req, res) {
 	res.render('about.html',{username: req.session.user});
 });
+
+function logincheck(req, res, next) {
+	if(!req.session.user){
+		//res.session.error = "Please login first!";
+        return res.redirect("/login");                
+    }
+    next();
+}
+
+function logoutcheck(req, res, next) {
+	if(req.session.user) {
+		//res.session.error = "Please logout first!";
+		return res.redirect("/");
+	}
+	next();
+}
 
 module.exports = router;
