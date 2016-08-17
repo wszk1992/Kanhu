@@ -16,7 +16,7 @@ BUG: Website stays in loading status for a while when 'like' or 'dislike' is pre
 `cd /your_project_path`  
 `npm install`  
 `npm start`  
-3. Open your browser and input: 
+3. Open your browser and input:   
 `localhost:3000`
 
 
