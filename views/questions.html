@@ -23,15 +23,19 @@
       body {
       padding-top: 100px;
     }
-      h3 {
-        color: #428bca;
+      h4 {
+        color: #778899;
       }
 
     </style>
   </head>
 
   <body>
-    <% include top.html %>
+    <% if(username == null) { %>
+      <% include top-no-login.html %>
+    <% }else {%>
+      <% include top-login.html %>
+      <%}%>
       <!-- Main component for a primary marketing message or call to action -->
     <div class="container">
       <h1>Questions</h1>
@@ -46,7 +50,7 @@
                   <small><%= questions[i].detail %></small>
                 </div>
                 <div class="col-md-4">
-                  <h3 class="text-right">Post by: <%= questions[i].user %></h3>
+                  <h4 class="text-right">Posted by: <%= questions[i].user %></h4>
                   <h6 class="text-right"><%= questions[i].date %></h6>
                 </div>
               </div>
@@ -56,8 +60,5 @@
 
     <script src="javascripts/jquery-3.1.0.min.js"></script>
     <script src="javascripts/bootstrap.min.js"></script>
-    <script>
-      document.getElementById("question").action = "/user/" + "<%= username%>" + "/questions";
-    </script>
   </body>
 </html>

@@ -1,8 +1,13 @@
-var express = require('express');
-var url = require('url');
-var router = express.Router();
+const express = require('express');
+const dbhandel = require('../database/dbHandel');
+const url = require('url');
+const router = express.Router();
+const User = dbhandel.getModel('user');
+const Question = dbhandel.getModel('question');
+const Answer = dbhandel.getModel('answer');
+const Vote = dbhandel.getModel('vote');
 
-router.get('/', logincheck);
+//router.get('/', logincheck);
 router.get('/', function(req, res) {
 	res.render('index.html', {title: 'Kanhu', username: req.session.user});
 });
@@ -14,7 +19,6 @@ router.get('/login', function(req, res) {
 
 router.post('/login', function(req, res) {
 	//get user info
-	var User = global.dbHandel.getModel('user');
 	User.findOne({username: req.body.username}, function(err, doc) {
 		if(err) {
 			res.send(500);
@@ -36,6 +40,7 @@ router.post('/login', function(req, res) {
 		}
 	});
 });
+
 router.get('/logout', logincheck);
 router.get('/logout', function(req, res) {
 	req.session.user = null;
@@ -50,7 +55,6 @@ router.get('/register', function(req, res) {
 
 router.post('/register', function(req, res) {
 	//console.log("get post request!");
-	var User = global.dbHandel.getModel('user');
 	var uname = req.body.username;
 	var upwd = req.body.password;
 	var upwd1 = req.body.password1;
@@ -88,42 +92,32 @@ router.post('/register', function(req, res) {
 	}
 });
 
-router.get('/user/:id', logincheck);
+//router.get('/user/:id', logincheck);
 router.get('/user/:id', function(req, res) {
 	var id = req.params.id;
-	var User = global.dbHandel.getModel('user');
-	var Question = global.dbHandel.getModel('question');
-	var Answer = global.dbHandel.getModel('answer');
 	User.findOne({username: id}, function(err, doc) {
 		if(err) {
 			console.log(err);
 			req.session.error = 'Internet Error';
 			res.sendStatus(500);
 		}else if(doc) {
-			if(id == req.session.user) {
-				Question.find({user: id},null,{sort:{_id:-1}}, function(err, docq) {
-					if(err) {
-						console.log(err);
-						req.session.error = 'Internet Error';
-						res.sendStatus(500);
-					}
-					Answer.find({user: id},null,{sort:{_id:-1}}, function(err, doca) {
+			Question.find({user: id}, null, {sort:{_id:-1}}, function(err, docq) {
+				if(err) {
+					console.log(err);
+					req.session.error = 'Internet Error';
+					res.sendStatus(500);
+				}else {
+					Answer.find({user: id}, null, {sort:{_id:-1}}, function(err, doca) {
 						if(err) {
 							console.log(err);
 							req.session.error = 'Internet Error';
 							res.sendStatus(500);
+						}else {
+							res.render('user.html', {username: req.session.user, visituser: id, myQuestions: docq, myAnswers: doca});
 						}
-						res.render('user.html', {username: id, myQuestions: docq, myAnswers: doca});
 					});
-					
-				});
-				
-				
-			}else {
-				//TODO: visit other's profile
-				req.session.error = "Cannot browse other's profile yet";
-				res.redirect("/");
-			}
+				}
+			});
 		}else {
 			req.session.error = "No such user";
 			res.sendStatus(404);
@@ -136,7 +130,6 @@ router.post('/user/:id/questions', function(req, res) {
 		req.session.error = "Cannot post the question on others' account";
 		res.redirect('/');
 	}
-	var Question = global.dbHandel.getModel('question');
 	Question.create({
 		title: req.body.question_title,
 		detail: req.body.question_details,
@@ -155,32 +148,9 @@ router.post('/user/:id/questions', function(req, res) {
 	});
 });
 
-// router.post('questions/:qid', function(req, res) {
-// 	console.log("begin remove the question from db");
-// 	var qid = req.params.qid;
-// 	var Question = global.dbHandel.getModel('question');
-// 	var Answer = global.dbHandel.getModel('answer');
-// 	Question.remove({_id:qid}, function(err) {
-// 		if(err) {
-// 			console.log(err);
-// 			res.sendStatus(500);
-// 		}else {
-// 			Answer.remove({questionId: qid}, function(err) {
-// 				if(err) {
-// 					console.log(err);
-// 					res.sendStatus(500);
-// 				}else {
-// 					console.log("remove the question from db");
-// 					res.redirect('/questions');
-// 				}
-// 			});
-// 		}
-// 	});
-// });
 
-router.get("/questions", logincheck);
+//router.get("/questions", logincheck);
 router.get("/questions", function(req, res) {
-	var Question = global.dbHandel.getModel('question');
 	Question.find({},null,{sort:{_id:-1}}, function(err, doc) {
 		if(err) {
 			console.log(err);
@@ -193,9 +163,6 @@ router.get("/questions", function(req, res) {
 });
 
 router.post('/questions/:id', function(req, res) {
-	//TODO: prevent post when the user doesn't login(no session)
-	var Answer = global.dbHandel.getModel('answer');
-	var Question = global.dbHandel.getModel('question');
 	Question.findOne({_id: req.params.id}, function(err, docq) {
 		if(err) {
 			console.log(err);
@@ -227,51 +194,52 @@ router.post('/questions/:id', function(req, res) {
 	
 });
 
-router.get('/questions/:id', logincheck);
+//router.get('/questions/:id', logincheck);
 router.get('/questions/:id', function(req, res) {
 	var id = req.params.id;
 	var userId = req.session.user;
-	var Question = global.dbHandel.getModel('question');
-	var Answer = global.dbHandel.getModel('answer');
-	var Vote = global.dbHandel.getModel('vote');
-	var docq, doca;
-	Question.findOne({_id: id}).exec(function(err, doc) {
+	Question.findOne({_id: id}, function(err, docq) {
 		if(err) {
 			console.log(err);
 			req.session.error = 'Internet Error';
 			res.sendStatus(500);
-		}else if(!doc) {
+		}else if(!docq) {
 			req.session.error = "No such question";
 			res.sendStatus(404);
 		}else {
-			docq = doc;
+			Answer.find({questionId: id}, null, {sort:{_id:1}}, function(err, doca) {
+				if(err) {
+					console.log(err);
+					req.session.error = 'Internet Error';
+					res.sendStatus(500);
+				}else {
+					if(userId != null) {
+						//login
+						Vote.find({questionId: id, user: userId}, null, {sort:{answerId:1}}, function(err, docv) {
+							if(err) {
+								console.log(err);
+								req.session.error = 'Internet Error';
+								res.sendStatus(500);
+							}else {
+								res.render('question.html', {title: docq.title, question: docq, answers: doca, votes: docv, username: userId});
+							}
+						});
+					}else {
+						//not login
+						res.render('question.html', {title: docq.title, question: docq, answers: doca, votes: [], username: userId});
+					}
+				}
+			});
 		}
 	});
 
-	Answer.find({questionId: id},null,{sort:{_id:1}}).exec(function(err, doc) {
-		if(err) {
-			console.log(err);
-			req.session.error = 'Internet Error';
-			res.sendStatus(500);
-		}else {
-			doca = doc;
-		}
-	});
+	
 
-	Vote.find({questionId: id, user: userId}, null, {sort:{answerId:1}}).exec(function(err, docv) {
-		if(err) {
-			console.log(err);
-			req.session.error = 'Internet Error';
-			res.sendStatus(500);
-		}else {
-			res.render('question.html', {title: docq.title, question: docq, answers: doca, votes: docv, username: userId});
-		}
-	});
+	
 });
 
-router.get('/users', logincheck);
+//administration function
 router.get('/users', function(req, res) {
-	var User = global.dbHandel.getModel('user');
 	User.find({}, function(req, doc) {
 		res.send(doc);
 	});
@@ -279,91 +247,103 @@ router.get('/users', function(req, res) {
 
 router.get('/answers/:id/:v', logincheck);
 router.get('/answers/:id/:v', function(req, res) {
-	var Answer = global.dbHandel.getModel('answer');
-	var Vote = global.dbHandel.getModel('vote');
 	var userId = req.session.user;
 	var voted = req.query.status;
 	var id = req.params.id;
 	var flag = req.params.v;
-	var doca;
 	console.log("status: " + voted);
-	Answer.findOne({_id: id}).exec(function(err, doc) {
+	Answer.findOne({_id: id}).exec(function(err, doca) {
 		if(err) {
 			console.log(err);
 			req.session.error = 'Internet Error';
 			res.sendStatus(500);
-		}else if(!doc) {
+		}else if(!doca) {
 			req.session.error = "No such answer";
 			res.sendStatus(404);
 		}else {
 			if(flag == "vote")
 				if(voted == '1') {
-					doc.votes--;
+					doca.votes--;
 				}else {
-					doc.votes++;
+					doca.votes++;
 				}
 			else {
 				if(voted == '1') {
-					doc.vetos--;
+					doca.vetos--;
 				}else {
-					doc.vetos++;
+					doca.vetos++;
 				}
 			}
-			doc.save();
-			doca = doc;
-			console.log(doc.votes);
-		}
-	});
-	Vote.findOne({answerId: id, user: userId}).exec(function(err, docv) {
-		if(err) {
-			console.log(err);
-			req.session.error = 'Internet Error';
-			res.sendStatus(500);
-		}else if(!docv) {
-			if(voted == '1') {
-				req.session.error = "No such vote";
-				res.sendStatus(500);
-			}else {
-				if(flag == "vote") {
-					Vote.create({
-						questionId: doca.questionId,
-						answerId: id,
-						user: userId,
-						vote: 1
-					}, function(err) {
-						if(err) {
-							console.log(err);
-							res.sendStatus(500);
-						}else {
-							console.log("create vote successfully!");
-						}
-					});
+			doca.save(function(err) {
+				if(err) {
+					console.log(err);
+					req.session.error = "Fail to save in a_db";
+					res.sendStatus(500);
 				}else {
-					Vote.create({
-						questionId: doca.questionId,
-						answerId: id,
-						user: userId,
-						veto: 1
-					}, function(err) {
+					console.log(doca.votes);
+					Vote.findOne({answerId: id, user: userId}, function(err, docv) {
 						if(err) {
 							console.log(err);
+							req.session.error = 'Internet Error';
 							res.sendStatus(500);
+						}else if(!docv) {
+							if(voted == '1') {
+								req.session.error = "No such vote";
+								res.sendStatus(500);
+							}else {
+								if(flag == "vote") {
+									Vote.create({
+										questionId: doca.questionId,
+										answerId: id,
+										user: userId,
+										vote: 1
+									}, function(err) {
+										if(err) {
+											console.log(err);
+											res.sendStatus(500);
+										}else {
+											console.log("create vote successfully!");
+										}
+									});
+								}else {
+									Vote.create({
+										questionId: doca.questionId,
+										answerId: id,
+										user: userId,
+										veto: 1
+									}, function(err) {
+										if(err) {
+											console.log(err);
+											res.sendStatus(500);
+										}else {
+											console.log("create veto successfully!");
+										}
+									});
+								}
+							}
 						}else {
-							console.log("create veto successfully!");
+							if(flag == "vote") {
+								docv.vote = !docv.vote;
+							}else {
+								docv.veto = !docv.veto;
+							}
+							console.log("change the vote/veto");
+							docv.save(function(err) {
+								if(err) {
+									console.log(err);
+									req.session.error = "Fail to save in v_db";
+									res.sendStatus(500);
+								}else {
+									console.log("vote saved in db");
+								}
+							});
 						}
 					});
 				}
-			}
-		}else {
-			if(flag == "vote") {
-				docv.vote = !docv.vote;
-			}else {
-				docv.veto = !docv.veto;
-			}
-			console.log("change the vote/veto");
-			docv.save();
+			});
 		}
 	});
+	
 });
 
 router.get('/about', function(req, res) {
@@ -372,7 +352,7 @@ router.get('/about', function(req, res) {
 
 function logincheck(req, res, next) {
 	if(!req.session.user){
-		//res.session.error = "Please login first!";
+		req.session.error = "Please login first!";
         return res.redirect("/login");                
     }
     next();
@@ -380,7 +360,7 @@ function logincheck(req, res, next) {
 
 function logoutcheck(req, res, next) {
 	if(req.session.user) {
-		//res.session.error = "Please logout first!";
+		req.session.error = "Please logout first!";
 		return res.redirect("/");
 	}
 	next();

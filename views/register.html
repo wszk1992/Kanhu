@@ -8,16 +8,19 @@
     <title><%= title %></title>
     <link href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
+      body {
+      padding-top: 100px;
+    }
     .m15{ margin: 15px;}
      .tc{ text-align: center;font-size: 18px;font-weight: 600;}
     </style>
 </head>
 <body screen_capture_injected="true">
+    <% include top-no-login.html %>
     <div class="container">
         <%- message %>
         <form class="col-sm-offset-4 col-sm-4 form-horizontal" action="/register" role="form" method="post">
             <fieldset>
-                <legend></legend>
                 <div class="panel panel-default">
                 <div class="panel-heading">
                     <p class="tc">注册信息</p>
@@ -61,39 +64,6 @@
 
     <script type="text/javascript" src="javascripts/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="javascripts/bootstrap.min.js"></script>
-    <!-- <script type="text/javascript">
-    $(function(){ 
-        $("#login1").click(function(){
-            location.href = 'login';
-        });
-        $("#register1").click(function(){
-            var username = $("#username").val();
-            var password = $("#password").val();
-            var password1 = $("#password1").val();
-            if(password !== password1){ 
-                $("#password").css("border","1px solid red");
-                $("#password1").css("border","1px solid red");
-            }else if(password === password1){
-                var data = {"uname":username,"upwd":password};
-                $.ajax({ 
-                    url: '/register',
-                    type: 'post',
-                    data: data,
-                    success: function(data,status){ 
-                        if(status == 'success'){ 
-                            console.log("register successfully");
-                            location.href = 'login';
-                        }
-                    },
-                    error: function(data,err){ 
-                        console.log("register failed");
-                        location.href = 'register';
-                    }
-                }); 
-            }
-        });
-    });
-</script> -->
 </body>
 </head>
 </html>

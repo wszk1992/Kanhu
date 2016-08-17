@@ -23,8 +23,8 @@
       body {
         padding-top: 50px;
       }
-      h3 {
-        color: #428bca;
+      h4 {
+        color: #778899;
       }
       #answerFunc li{
         display: inline-block;
@@ -34,7 +34,11 @@
   </head>
 
   <body>
-    <% include top.html %>      
+    <% if(username == null) { %>
+      <% include top-no-login.html %>
+    <% }else {%>
+      <% include top-login.html %>
+      <%}%> 
 
     <div class="container">
       <!-- question -->
@@ -46,7 +50,7 @@
             </h1>
           </div>
           <div class="col-md-4">
-            <h3 class="text-right">Posted by: <%= question.user %></h3>
+            <h4 class="text-right">Posted by: <%= question.user %></h4>
             <h6 class="text-right"><%= question.date %></h6>
           </div>
         </div>
@@ -83,7 +87,7 @@
                   <span id="veto<%= i%>" class="glyphicon glyphicon-chevron-down" aria-hidden="true" onmouseover="vetoOver(this)" onmouseout="vetoOut(this, '<%= i%>')" onclick="veto(this, '<%= answers[i]._id%>', '<%= i%>')"></span>
                   <span id="showveto<%= i%>"><%= answers[i].vetos%></span>
                 </p>
-                <script>
+                  <script>
                   if(vote_status['<%=i%>'] == 'false')
                     document.getElementById("vote<%= i%>").style = "color: black";
                   else 
@@ -92,7 +96,7 @@
                     document.getElementById("veto<%= i%>").style = "color: black";
                   else 
                     document.getElementById("veto<%= i%>").style = "color: green";
-                </script>
+                  </script>
               </div>
               <div class="col-md-11">
                   <a><%= answers[i].user%>:</a>
@@ -118,9 +122,6 @@
           <button type="submit" class="btn btn-primary col-md-1 col-md-offset-11">Submit</button>
         </p>
       </form>
-
-      <p id="testarea"></p>
-
     </div>
 
 
@@ -134,10 +135,8 @@
     <script src="/javascripts/bootstrap.min.js"></script>
     
     <script>
-      document.getElementById("question").action = "/user/" + "<%= username%>" + "/questions";
       document.getElementById("answer").action = "/questions/" + "<%= question._id%>";
 
-      document.getElementById("testarea").innerHTML = str;
       function voteOver(obj) {
         obj.style = "color:red";
       }
@@ -159,29 +158,38 @@
         }
       }
       function vote(obj, id, index) {
-        if(vote_status[index] == 'true') {
-          document.getElementById("showvote" + index).innerHTML = Number(document.getElementById("showvote" + index).innerHTML) - 1;
-          obj.style = "color: black";
-          $.get("/answers/" + id + "/vote?status=1");
-          vote_status[index] = 'false';
+        if('<%=username%>' == 'undefined') {
+          alert("login first!");
         }else {
-          document.getElementById("showvote" + index).innerHTML = Number(document.getElementById("showvote" + index).innerHTML) + 1;
-          obj.style = "color: red";
-          $.get("/answers/" + id + "/vote?status=0");
-          vote_status[index] = 'true';
+          if(vote_status[index] == 'true') {
+            document.getElementById("showvote" + index).innerHTML = Number(document.getElementById("showvote" + index).innerHTML) - 1;
+            obj.style = "color: black";
+            $.get("/answers/" + id + "/vote?status=1" + "&date=" + Date());
+            vote_status[index] = 'false';
+          }else {
+            document.getElementById("showvote" + index).innerHTML = Number(document.getElementById("showvote" + index).innerHTML) + 1;
+            obj.style = "color: red";
+            $.get("/answers/" + id + "/vote?status=0" + "&date=" + Date());
+            vote_status[index] = 'true';
+          }
         }
+        
       }
       function veto(obj, id, index) {
-        if(veto_status[index] == 'true') {
-          document.getElementById("showveto" + index).innerHTML = Number(document.getElementById("showveto" + index).innerHTML) - 1;
-          obj.style = "color: black";
-          $.get("/answers/" + id + "/veto?status=1");
-          veto_status[index] = 'false';
+        if('<%=username%>' == 'undefined') {
+          alert("login first!");
         }else {
-          document.getElementById("showveto" + index).innerHTML = Number(document.getElementById("showveto" + index).innerHTML) + 1;
-          obj.style = "color: green";
-          $.get("/answers/" + id + "/veto?status=0");
-          veto_status[index] = 'true';
+          if(veto_status[index] == 'true') {
+            document.getElementById("showveto" + index).innerHTML = Number(document.getElementById("showveto" + index).innerHTML) - 1;
+            obj.style = "color: black";
+            $.get("/answers/" + id + "/veto?status=1" + "&date=" + Date());
+            veto_status[index] = 'false';
+          }else {
+            document.getElementById("showveto" + index).innerHTML = Number(document.getElementById("showveto" + index).innerHTML) + 1;
+            obj.style = "color: green";
+            $.get("/answers/" + id + "/veto?status=0" + "&date=" + Date());
+            veto_status[index] = 'true';
+          }
         }
       }
 

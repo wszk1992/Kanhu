@@ -31,7 +31,11 @@
   </head>
 
   <body>
-<% include top.html %>
+    <% if(username == null) { %>
+      <% include top-no-login.html %>
+    <% }else {%>
+      <% include top-login.html %>
+      <%}%>
       <!-- Main component for a primary marketing message or call to action -->
     <div class="container">
       <h1>Welcome to KanHu!</h1>
