@@ -9,16 +9,16 @@
     <link href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
       body {
-      padding-top: 100px;
+      padding-top: 10%;
     }
     .m15{ margin: 15px;}
      .tc{ text-align: center;font-size: 18px;font-weight: 600;}
     </style>
 </head>
 <body screen_capture_injected="true">
+    <%- message %>
     <% include top-no-login.html %>
     <div class="container">
-        <%- message %>
         <form class="col-sm-offset-4 col-sm-4 form-horizontal" action="/register" role="form" method="post">
             <fieldset>
                 <div class="panel panel-default">

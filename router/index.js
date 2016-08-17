@@ -59,7 +59,6 @@ router.post('/register', function(req, res) {
 	var upwd = req.body.password;
 	var upwd1 = req.body.password1;
 	if(upwd !== upwd1) {
-		console.log("Passwords are not same");
 		req.session.error = 'Passwords are not same';
 		res.redirect("/register");
 	}else {
