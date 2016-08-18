@@ -21,8 +21,8 @@
     <![endif]-->
     <style type="text/css">
       body {
-      padding-top: 10%;
-    }
+        padding-top: 50px;
+      }
       h4 {
         color: #778899;
       }
@@ -51,7 +51,7 @@
                   <small><%= questions[i].detail %></small>
                 </div>
                 <div class="col-md-4">
-                  <h4 class="text-right">Posted by: <%= questions[i].user %></h4>
+                  <div class="text-right"><font style="color:grey;">Posted by: </font><a href="/user/<%=questions[i].user%>"><%= questions[i].user %></a></div>
                   <h6 class="text-right"><%= questions[i].date %></h6>
                 </div>
               </div>

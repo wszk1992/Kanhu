@@ -21,8 +21,8 @@
     <![endif]-->
     <style type="text/css">
       body {
-      padding-top: 10%;
-    }
+        padding-top: 50px;
+      }
       h4 {
         color: #778899;
       }
@@ -51,7 +51,7 @@
             </h1>
           </div>
           <div class="col-md-4">
-            <h4 class="text-right">Posted by: <%= question.user %></h4>
+            <div class="text-right"><font style="color:grey;">Posted by: </font><a href="/user/<%=question.user%>"><%= question.user %></a></div>
             <h6 class="text-right"><%= question.date %></h6>
           </div>
         </div>
@@ -78,8 +78,9 @@
           <%} %>
           
             <tr><th>
+            <div class="container">
             <div class="row">
-              <div class="col-md-1">
+              <div class="col-md-1 col-xs-3" >
                 <p>
                   <span id="vote<%= i%>" class="glyphicon glyphicon-chevron-up" aria-hidden="true" onmouseover="voteOver(this)" onmouseout="voteOut(this, '<%= i%>')" onclick="vote(this, '<%= answers[i]._id%>', '<%= i%>')"></span>
                   <span id="showvote<%= i%>"><%= answers[i].votes%></span>
@@ -99,8 +100,8 @@
                     document.getElementById("veto<%= i%>").style = "color: green";
                   </script>
               </div>
-              <div class="col-md-11">
-                  <a><%= answers[i].user%>:</a>
+              <div class="col-md-11 col-xs-9">
+                  <a href="/user/<%=answers[i].user%>"><%= answers[i].user%>:</a>
                   <p><%= answers[i].body%></p>
                   <div id="answerFunc">
                     <li><a style="color:grey">reply</a></li>
@@ -108,6 +109,7 @@
                     <li><a style="color:grey">more</a></li>
                   </div>
               </div>
+            </div>
             </div>
             </th></tr>
           <% } %>

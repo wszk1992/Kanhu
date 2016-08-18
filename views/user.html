@@ -10,7 +10,7 @@
     <meta name="author" content="">
     <link rel="icon" href="/favicon.ico">
 
-    <title><%= visituser %></title>
+    <title><%= profile.username %></title>
 
     <!-- Bootstrap core CSS -->
     <link href="/stylesheets/bootstrap.min.css" rel="stylesheet">
@@ -22,11 +22,17 @@
     <![endif]-->
     <style type="text/css">
       body {
-      padding-top: 10%;
+      padding-top: 80px;
     }
       h4 {
         color: #778899;
       }
+
+      #QA {
+        padding-top: 50px;
+      }
+      
+
 
     </style>
   </head>
@@ -41,8 +47,20 @@
 
     <!-- nav-tabs -->
     <div class="container">
-      <div>
-
+     <!-- profile -->
+      <div id="profile">
+        <div class="media">
+          <div class="media-left">
+              <img height="150" width="150" class="media-object" src="/user/<%=profile.username%>/pic" alt="">
+          </div>
+          <div class="media-body">
+            <h2 style="font-family: Times, Georgia, Georgia;" class="media-heading"><%=profile.username%></h2>
+            <font><%=profile.info%></font>
+          </div>
+        </div>
+      </div>
+     <!--tag-->
+      <div id="QA">
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
           <li role="presentation" class="active"><a href="#myQuestions" aria-controls="myQuestions" role="tab" data-toggle="tab">My Questions</a></li>
@@ -64,7 +82,7 @@
                       </h3>
                     </div>
                     <div class="col-md-3">
-                        <h4 class="text-right">Posted by: <%= myQuestions[i].user %></h4>
+                        <div class="text-right"><font style="color:grey;">Posted by: </font><a href="/user/<%=myQuestions[i].user%>"><%= myQuestions[i].user %></a></div>
                         <h6 class="text-right"><%= myQuestions[i].date %></h6>
                     </div>
                   </div>

@@ -1,11 +1,14 @@
 const express = require('express');
 const dbhandel = require('../database/dbHandel');
 const url = require('url');
+const fs = require("fs");
 const router = express.Router();
 const User = dbhandel.getModel('user');
 const Question = dbhandel.getModel('question');
 const Answer = dbhandel.getModel('answer');
 const Vote = dbhandel.getModel('vote');
+const Profile = dbhandel.getModel('profile');
+
 
 //router.get('/', logincheck);
 router.get('/', function(req, res) {
@@ -62,12 +65,12 @@ router.post('/register', function(req, res) {
 		req.session.error = 'Passwords are not same';
 		res.redirect("/register");
 	}else {
-		User.findOne({username: uname}, function(err, doc) {
+		User.findOne({username: uname}, function(err, docu) {
 			if(err) {
 				console.log(err);
 				req.session.error = 'Internet Error';
 				res.sendStatus(500);
-			}else if(doc) {
+			}else if(docu) {
 				req.session.error = 'Username is already in use';
 				// res.sendStatus(500);
 				res.redirect("/register");
@@ -80,10 +83,19 @@ router.post('/register', function(req, res) {
 						console.log(err);
 						res.sendStatus(500);
 					}else {
-						req.session.user = uname;
-						req.session.success = 'User is created successfully';
-						//res.sendStatus(200);
-						res.redirect("/");
+						Profile.create({
+							username: uname
+						}, function(err) {
+							if(err) {
+								console.log(err);
+								res.sendStatus(500);
+							}else {
+								req.session.user = uname;
+								req.session.success = 'User is created successfully';
+								res.redirect("/");
+							}								
+						});
+						
 					}
 				});
 			}
@@ -94,12 +106,12 @@ router.post('/register', function(req, res) {
 //router.get('/user/:id', logincheck);
 router.get('/user/:id', function(req, res) {
 	var id = req.params.id;
-	User.findOne({username: id}, function(err, doc) {
+	Profile.findOne({username: id}, function(err, docp) {
 		if(err) {
 			console.log(err);
 			req.session.error = 'Internet Error';
 			res.sendStatus(500);
-		}else if(doc) {
+		}else if(docp) {
 			Question.find({user: id}, null, {sort:{_id:-1}}, function(err, docq) {
 				if(err) {
 					console.log(err);
@@ -112,7 +124,8 @@ router.get('/user/:id', function(req, res) {
 							req.session.error = 'Internet Error';
 							res.sendStatus(500);
 						}else {
-							res.render('user.html', {username: req.session.user, visituser: id, myQuestions: docq, myAnswers: doca});
+							Profile.find()
+							res.render('user.html', {username: req.session.user, profile: docp, myQuestions: docq, myAnswers: doca});
 						}
 					});
 				}
@@ -343,6 +356,33 @@ router.get('/answers/:id/:v', function(req, res) {
 		}
 	});
 	
+});
+
+// router.get('/pic/profile/:i', function(req, res) {
+// 	res.send('/public/images/pic/' + req.params.i);
+// });
+
+router.get('/user/:id/pic', function(req, res) {
+	Profile.findOne({username: req.params.id}, function(err, doc) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else if(!doc){
+			req.session.error = 'No such user';
+			res.sendStatus(500);
+		}else {
+			fs.readFile('./public/images/pic/' + doc.pic + '.png', "binary", function(err, file) {
+				if(err) {
+					console.log(err);
+					req.session.error = 'Load img file failed';
+					res.sendStatus(500);
+				}else {
+					res.write(file, "binary");
+				}
+			});
+		}
+	});
 });
 
 router.get('/about', function(req, res) {

@@ -1,11 +1,17 @@
 module.exports = {
-	user:{
+	user: {
 		username: {type: String, required: true},
 		password: {type: String, required: true},
-		admin: {type: Boolean, default: false}
+		admin: {type: Boolean, default: false},
 	},
 
-	answer:{
+	profile: {
+		username: {type: String, required: true},
+		info: {type: String, default: "Nothing left here"},
+		pic: {type: Number, default: 1}
+	},
+
+	answer: {
 		questionId: String,
 		questionTitle: String,
 		user: String, 
@@ -15,7 +21,7 @@ module.exports = {
 		vetos: {type: Number, default: 0}
 	},
 
-	question:{
+	question: {
 		title: String,
 		detail: String,
 		user: String,
