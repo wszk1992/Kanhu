@@ -21,10 +21,10 @@
     <![endif]-->
     <style type="text/css">
       body {
-        padding-top: 50px;
+        padding-top: 80px;
       }
-      h3 {
-        color: #428bca;
+      ol li {
+        font-size: 150%;
       }
 
     </style>
@@ -38,7 +38,43 @@
       <%}%>
       <!-- Main component for a primary marketing message or call to action -->
     <div class="container">
-      <h1>Welcome to KanHu!</h1>
+    <div class="jumbotron">
+      <h1>Welcome to Kanhu!</h1>
+      <h3 style="color:grey">A Q&A website based on </h3>
+      <p class="text-success">Express, Mongodb, Bootstrap, jQuery </p>
+      <h2> Features <span class="label label-default">v0.1</span> </h2>
+      <ol>
+        <li>Post questions</li>
+        <li>Answer asker's questions</li>
+        <li>'Like' or 'Dislike' answers</li>
+        <li>Show user's profile</li>
+      </ol>
+      <h2>Get started</h2>
+      <ol>
+        <li>Download <a href="https://www.mongodb.com/">Mongodb</a> and open it by</li>
+        <code>
+          cd /your/mongodb/path/bin<br>
+          ./mongod --dbpath ~/your/mongodb/path/data/db<br>
+        </code>
+        <li>Run the following commands in your terminal</li>
+        <code>
+          cd /your/project/path<br>
+          npm install<br>
+          npm start<br>
+        </code> 
+        <li>Open your browser and input: </li>
+        <code>localhost:3000</code>
+      </ol>
+
+      <h2 style="color:red">BUG report</h2>
+      <div >Website stays in loading status for a while when 'like' or 'dislike' is pressed too fast, which sometimes causes the server shutting down.</div>
+      <p></p>
+      <p>
+      <a class="btn btn-primary btn-lg" href="https://github.com/wszk1992/Kanhu" target="_blank" role="button">Get source code in Github</a></p>
+    </div>
+
+
+
     </div> <!-- /container -->
 
 

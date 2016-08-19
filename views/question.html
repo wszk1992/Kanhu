@@ -121,7 +121,7 @@
       <!-- TODO: timeline, link to user profile, vote -->
 
       <!-- text editor -->
-      <form action="#" method="post" id="answer">
+      <form action="/questions/<%= question._id%>" method="post" id="answer">
         <label>Your answer</label>
         <textarea class="form-control" name="answer_body" rows="3"></textarea>
         <p>
@@ -141,7 +141,6 @@
     <script src="/javascripts/bootstrap.min.js"></script>
     
     <script>
-      document.getElementById("answer").action = "/questions/" + "<%= question._id%>";
 
       function voteOver(obj) {
         obj.style = "color:red";

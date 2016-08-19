@@ -2,6 +2,7 @@ const express = require('express');
 const dbhandel = require('../database/dbHandel');
 const url = require('url');
 const fs = require("fs");
+const path = require("path");
 const router = express.Router();
 const User = dbhandel.getModel('user');
 const Question = dbhandel.getModel('question');
@@ -9,6 +10,8 @@ const Answer = dbhandel.getModel('answer');
 const Vote = dbhandel.getModel('vote');
 const Profile = dbhandel.getModel('profile');
 
+//get the number of profile pictures
+var profilePic = fs.readdirSync(path.resolve(__dirname, '../public/images/pic/')).length;
 
 //router.get('/', logincheck);
 router.get('/', function(req, res) {
@@ -124,8 +127,7 @@ router.get('/user/:id', function(req, res) {
 							req.session.error = 'Internet Error';
 							res.sendStatus(500);
 						}else {
-							Profile.find()
-							res.render('user.html', {username: req.session.user, profile: docp, myQuestions: docq, myAnswers: doca});
+							res.render('user.html', {username: req.session.user, profile: docp, myQuestions: docq, myAnswers: doca, num: profilePic});
 						}
 					});
 				}
@@ -315,6 +317,7 @@ router.get('/answers/:id/:v', function(req, res) {
 											res.sendStatus(500);
 										}else {
 											console.log("create vote successfully!");
+											res.sendStatus(200);
 										}
 									});
 								}else {
@@ -329,6 +332,7 @@ router.get('/answers/:id/:v', function(req, res) {
 											res.sendStatus(500);
 										}else {
 											console.log("create veto successfully!");
+											res.sendStatus(200);
 										}
 									});
 								}
@@ -347,6 +351,7 @@ router.get('/answers/:id/:v', function(req, res) {
 									res.sendStatus(500);
 								}else {
 									console.log("vote saved in db");
+									res.sendStatus(200);
 								}
 							});
 						}
@@ -358,27 +363,38 @@ router.get('/answers/:id/:v', function(req, res) {
 	
 });
 
-// router.get('/pic/profile/:i', function(req, res) {
-// 	res.send('/public/images/pic/' + req.params.i);
-// });
+router.get('/pic/profile/:i', function(req, res) {
+	res.sendFile(path.resolve(__dirname, '../public/images/pic/' + req.params.i), function(err) {
+		if(err) {
+			console.log(err);
+			res.status(err.status).end();
+		}
+	});
+});
 
-router.get('/user/:id/pic', function(req, res) {
-	Profile.findOne({username: req.params.id}, function(err, doc) {
+router.get('/pic/profile', function(req, res) {
+	res.render('profilePic.html',{num: profilePic});
+});
+
+router.post('/user/:username/profile/pic', function(req, res) {
+	Profile.findOne({username: req.params.username}, function(err, doc) {
 		if(err) {
 			console.log(err);
 			req.session.error = 'Internet Error';
 			res.sendStatus(500);
-		}else if(!doc){
+		}else if(!doc) {
+			console.log("No such user");
 			req.session.error = 'No such user';
-			res.sendStatus(500);
 		}else {
-			fs.readFile('./public/images/pic/' + doc.pic + '.png', "binary", function(err, file) {
+			doc.pic = parseInt(req.query.num);
+			doc.save(function(err) {
 				if(err) {
 					console.log(err);
-					req.session.error = 'Load img file failed';
+					req.session.error = "Fail to save in a_db";
 					res.sendStatus(500);
 				}else {
-					res.write(file, "binary");
+					req.session.success = "Change profile picture successfully!";
+					res.redirect('/user/' + req.params.username);
 				}
 			});
 		}

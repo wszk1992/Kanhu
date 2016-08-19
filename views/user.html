@@ -51,7 +51,15 @@
       <div id="profile">
         <div class="media">
           <div class="media-left">
-              <img height="150" width="150" class="media-object" src="/user/<%=profile.username%>/pic" alt="">
+            <div style="position: relative; width: 150px; height: 150px;" onmouseover="profileOver()" onmouseout="profileOut()"> 
+              <img id="profilePic" style="opacity:1;" height="150" width="150" class="media-object" src="/pic/profile/<%=profile.pic%>.png" alt="">
+              <% if(username == profile.username) {%>
+              <span style="position: absolute; top: 65px; left:40px">
+                <a id="profileChange" style="opacity:0;" class="btn btn-default" href="#" role="button"  data-toggle="modal" data-target="#profileModal">Change
+                </a>
+              </span>
+              <%}%>
+            </div>
           </div>
           <div class="media-body">
             <h2 style="font-family: Times, Georgia, Georgia;" class="media-heading"><%=profile.username%></h2>
@@ -59,6 +67,30 @@
           </div>
         </div>
       </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <form action="#" id="profilePicForm" method="post">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div class="row">
+                <% for(i = 0; i < num; i++) {%>
+                  <div class="col-md-3 col-xs-4">
+                    <img id="pic<%=i%>" height="100" width="100" src="/pic/profile/<%=i%>.png" alt="" onclick="selectPic(this, '<%=i%>')">
+                  </div>
+                <%}%>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
      <!--tag-->
       <div id="QA">
         <!-- Nav tabs -->
@@ -83,7 +115,9 @@
                     </div>
                     <div class="col-md-3">
                         <div class="text-right"><font style="color:grey;">Posted by: </font><a href="/user/<%=myQuestions[i].user%>"><%= myQuestions[i].user %></a></div>
-                        <h6 class="text-right"><%= myQuestions[i].date %></h6>
+                        <h6 class="text-right">
+                        <%=myQuestions[i].date.getFullYear()%>.<%=myQuestions[i].date.getMonth()+1%>.<%=myQuestions[i].date.getDate()%> <%=myQuestions[i].date.getHours()%>:<%=myQuestions[i].date.getMinutes()%>:<%=myQuestions[i].date.getSeconds()%>
+                        </h6>
                     </div>
                   </div>
                 </div>
@@ -110,5 +144,30 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/javascripts/jquery-3.1.0.min.js"></script>
     <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/moment.js"></script>
+    <script>
+      var select = "<%=profile.pic%>";
+      document.getElementById("pic" + select).style = "border-style: outset; border-width: 2px;";
+
+      function profileOver() {
+        if('<%=username%>' == '<%=profile.username%>') {
+          document.getElementById("profilePic").style.opacity = 0.3;
+          document.getElementById("profileChange").style.opacity = 0.8;
+        }
+      }
+      function profileOut() {
+        if('<%=username%>' == '<%=profile.username%>') {
+          document.getElementById("profilePic").style.opacity = 1;
+          document.getElementById("profileChange").style.opacity = 0;
+        }
+      }
+      
+      function selectPic(obj, i) {
+        document.getElementById("pic" + select).style = "";
+        obj.style =  "border-style: outset; border-width: 2px;"
+        select = i;
+        document.getElementById("profilePicForm").action = "/user/<%=username%>/profile/pic?num=" + select;
+      }
+    </script>
   </body>
 </html>
