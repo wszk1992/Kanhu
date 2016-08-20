@@ -174,10 +174,6 @@
       var select = "<%=profile.pic%>";
       document.getElementById("pic" + select).style = "border-style: outset; border-width: 2px;";
 
-      function DateTransform() {
-
-      }
-
       function profilePicOver() {
         if('<%=username%>' == '<%=profile.username%>') {
           document.getElementById("profilePic").style.opacity = 0.3;
@@ -192,7 +188,7 @@
       }
       function selectPic(obj, i) {
         document.getElementById("pic" + select).style = "";
-        obj.style =  "border-style: outset; border-width: 2px;"
+        obj.style =  "border-style: solid; border-width: 4px; border-color:hsla(120,65%,75%,0.3);"
         select = i;
       }
       function submitProfilePic() {
