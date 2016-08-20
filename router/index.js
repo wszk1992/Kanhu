@@ -41,7 +41,7 @@ router.post('/login', function(req, res) {
 			}else {
 				console.log("login successfully");
 				req.session.user = doc.username;
-				res.redirect('/');
+				res.redirect('/user/' + req.session.user);
 			}
 		}
 	});
@@ -127,7 +127,7 @@ router.get('/user/:id', function(req, res) {
 							req.session.error = 'Internet Error';
 							res.sendStatus(500);
 						}else {
-							res.render('user.html', {username: req.session.user, profile: docp, myQuestions: docq, myAnswers: doca, num: profilePic});
+							res.render('user.html', {username: req.session.user, profile: docp, questions: docq, answers: doca, num: profilePic});
 						}
 					});
 				}
@@ -221,35 +221,70 @@ router.get('/questions/:id', function(req, res) {
 			req.session.error = "No such question";
 			res.sendStatus(404);
 		}else {
-			Answer.find({questionId: id}, null, {sort:{_id:1}}, function(err, doca) {
+			Profile.findOne({username: docq.user}, function(err, docp) {
+				if(err) {
+					console.log(err);
+					req.session.error = 'Internet Error';
+					res.sendStatus(500);
+				}else if(!docp) {
+					req.session.error = "No such profile";
+					res.sendStatus(404);
+				}else {
+					Answer.find({questionId: id}, null, {sort:{_id:1}}, function(err, doca) {
+						if(err) {
+							console.log(err);
+							req.session.error = 'Internet Error';
+							res.sendStatus(500);
+						}else {
+							if(userId != null) {
+								//login
+								Vote.find({questionId: id, user: userId}, null, {sort:{answerId:1}}, function(err, docv) {
+									if(err) {
+										console.log(err);
+										req.session.error = 'Internet Error';
+										res.sendStatus(500);
+									}else {
+										res.render('question.html', {title: docq.title, question: docq, profile: docp, answers: doca, votes: docv, username: userId});
+									}
+								});
+							}else {
+								//not login
+								res.render('question.html', {title: docq.title, question: docq, profile: docp, answers: doca, votes: [], username: userId});
+							}
+						}
+					});
+				}
+			});
+		}
+	});
+});
+
+router.get('/questions/:id/delete', function(req, res) {
+	Question.remove({_id: req.params.id}, function(err) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else {
+			Answer.remove({questionId: req.params.id}, function(err) {
 				if(err) {
 					console.log(err);
 					req.session.error = 'Internet Error';
 					res.sendStatus(500);
 				}else {
-					if(userId != null) {
-						//login
-						Vote.find({questionId: id, user: userId}, null, {sort:{answerId:1}}, function(err, docv) {
-							if(err) {
-								console.log(err);
-								req.session.error = 'Internet Error';
-								res.sendStatus(500);
-							}else {
-								res.render('question.html', {title: docq.title, question: docq, answers: doca, votes: docv, username: userId});
-							}
-						});
-					}else {
-						//not login
-						res.render('question.html', {title: docq.title, question: docq, answers: doca, votes: [], username: userId});
-					}
+					Vote.remove({questionId: req.params.id}, function(err) {
+						if(err) {
+							console.log(err);
+							req.session.error = 'Internet Error';
+							res.sendStatus(500);
+						}else {
+							res.sendStatus(200);
+						}
+					})
 				}
-			});
+			})
 		}
-	});
-
-	
-
-	
+	})
 });
 
 //administration function
@@ -259,8 +294,8 @@ router.get('/users', function(req, res) {
 	});
 });
 
-router.get('/answers/:id/:v', logincheck);
-router.get('/answers/:id/:v', function(req, res) {
+router.get('/answers/:id/vote/:v', logincheck);
+router.get('/answers/:id/vote/:v', function(req, res) {
 	var userId = req.session.user;
 	var voted = req.query.status;
 	var id = req.params.id;
@@ -363,6 +398,26 @@ router.get('/answers/:id/:v', function(req, res) {
 	
 });
 
+router.get('/answers/:id/delete', function(req, res) {
+	Answer.remove({_id: req.params.id}, function(err) {
+		if(err) {
+			console.log(err);
+			req.session.error = 'Internet Error';
+			res.sendStatus(500);
+		}else {
+			Vote.remove({answerId: req.params.id}, function(err) {
+				if(err) {
+					console.log(err);
+					req.session.error = 'Internet Error';
+					res.sendStatus(500);
+				}else {
+					res.sendStatus(200);
+				}
+			});
+		}
+	});
+});
+
 router.get('/pic/profile/:i', function(req, res) {
 	res.sendFile(path.resolve(__dirname, '../public/images/pic/' + req.params.i), function(err) {
 		if(err) {
@@ -376,7 +431,7 @@ router.get('/pic/profile', function(req, res) {
 	res.render('profilePic.html',{num: profilePic});
 });
 
-router.post('/user/:username/profile/pic', function(req, res) {
+router.post('/user/:username/profile/:attr', function(req, res) {
 	Profile.findOne({username: req.params.username}, function(err, doc) {
 		if(err) {
 			console.log(err);
@@ -386,17 +441,37 @@ router.post('/user/:username/profile/pic', function(req, res) {
 			console.log("No such user");
 			req.session.error = 'No such user';
 		}else {
-			doc.pic = parseInt(req.query.num);
-			doc.save(function(err) {
-				if(err) {
-					console.log(err);
-					req.session.error = "Fail to save in a_db";
-					res.sendStatus(500);
-				}else {
-					req.session.success = "Change profile picture successfully!";
-					res.redirect('/user/' + req.params.username);
-				}
-			});
+			if(req.params.attr == 'pic') {
+				doc.pic = parseInt(req.body.num);
+				doc.save(function(err) {
+					if(err) {
+						console.log(err);
+						req.session.error = "Fail to save pic in profile";
+						res.sendStatus(500);
+					}else {
+						console.log("get pic:", doc.pic);
+						req.session.success = "Change profile picture successfully!";
+						res.send(req.body.num);
+					}
+				});
+			}else if(req.params.attr == 'info'){
+				doc.info = req.body.profileInfo;
+				doc.save(function(err) {
+					if(err) {
+						console.log(err);
+						req.session.error = "Fail to save info in profile";
+						res.sendStatus(500);
+					}else {
+						req.session.success = "Change profile picture successfully!";
+						res.send(doc.info);
+					}
+				})
+			}else {
+				console.log("No such attributition in profile");
+				req.session.error = "No such attributition in profile";
+				res.sendStatus(500);
+			}
+			
 		}
 	});
 });

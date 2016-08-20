@@ -43,18 +43,20 @@
        <!-- Questions list -->
           <% for(i = 0; i < questions.length; i++) { %> 
             <div class="page-header"> 
-              <div class="row"> 
-                <div class="col-md-8">
-                  <h3><a href="/questions/<%= questions[i]._id %>">
-                    <%= questions[i].title %></a>
+                  <h3><p><a href="/questions/<%= questions[i]._id %>">
+                    <%= questions[i].title %></a></p>
+                    <small><%= questions[i].detail %></small>
                   </h3>
-                  <small><%= questions[i].detail %></small>
-                </div>
-                <div class="col-md-4">
-                  <div class="text-right"><font style="color:grey;">Posted by: </font><a href="/user/<%=questions[i].user%>"><%= questions[i].user %></a></div>
-                  <h6 class="text-right"><%= questions[i].date %></h6>
-                </div>
-              </div>
+                  <div class="text-left">
+                    <span style="color:grey; font-size:10px">
+                    <%=questions[i].date%>
+                      <!-- <%=questions[i].date.getFullYear()%>-<%=questions[i].date.getMonth()+1%>-<%=questions[i].date.getDate()%> <%=questions[i].date.getHours()%>:<%=questions[i].date.getMinutes()%>:<%=questions[i].date.getSeconds()%> -->
+                    </span>
+                    <span style="float:right;">
+                    <font style="color:grey;">Posted by: </font>
+                    <a href="/user/<%=questions[i].user%>"><%= questions[i].user %></a>
+                    </span>
+                  </div>
             </div> 
           <% } %> 
     </div> <!-- /container -->

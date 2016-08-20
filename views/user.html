@@ -31,10 +31,8 @@
       #QA {
         padding-top: 50px;
       }
-      
-
-
     </style>
+    <script src="/javascripts/moment.js"></script>
   </head>
 
   <body>
@@ -51,19 +49,34 @@
       <div id="profile">
         <div class="media">
           <div class="media-left">
-            <div style="position: relative; width: 150px; height: 150px;" onmouseover="profileOver()" onmouseout="profileOut()"> 
-              <img id="profilePic" style="opacity:1;" height="150" width="150" class="media-object" src="/pic/profile/<%=profile.pic%>.png" alt="">
-              <% if(username == profile.username) {%>
-              <span style="position: absolute; top: 65px; left:40px">
-                <a id="profileChange" style="opacity:0;" class="btn btn-default" href="#" role="button"  data-toggle="modal" data-target="#profileModal">Change
-                </a>
+            <div style="position: relative; width: 150px; height: 150px;" onmouseover="profilePicOver()" onmouseout="profilePicOut()">
+              <span id="profilePicSpan">
+                <img id="profilePic" style="opacity:1;" height="150" width="150" class="media-object" src="/pic/profile/<%=profile.pic%>.png" alt="">
               </span>
+              <% if(username == profile.username) {%>
+                <span style="position: absolute; top: 65px; left:40px">
+                  <a id="profileChange" style="opacity:0;" class="btn btn-default" href="#" role="button"  data-toggle="modal" data-target="#profileModal">Change
+                  </a>
+                </span>
               <%}%>
             </div>
           </div>
-          <div class="media-body">
-            <h2 style="font-family: Times, Georgia, Georgia;" class="media-heading"><%=profile.username%></h2>
-            <font><%=profile.info%></font>
+          <div  class="media-body">
+            <h1 style="font-family: Times, Georgia, Georgia;" class="media-heading"><%=profile.username%></h1>
+            <form id="profileInfoForm">
+              <div class="form-group">
+                <!-- add a blank input to avoid pressing 'enter' to submit form  -->
+                <input type="text" style="display:none">
+                <input id="profileInfoInput" name="profileInfo" style="display:none;" type="text" class="form-control" onkeypress="profileInfoKey(event)">
+              </div>
+                <button id="profileInfoBtnCl" style="display:none;" type="button" class="btn btn-default btn-sm" onclick="returnProfileInfo()">cancel</button>
+                <button id="profileInfoBtn" style="display:none;" type="button" class="btn btn-default btn-sm" onclick="submitProfileInfo()">Submit</button>
+            </form>
+            
+            <span style="font-size:18px;" id="profileInfo"><%=profile.info%></span>
+            <% if(username == profile.username) {%>
+            <span id="profileInfoEdit" style="opacity:0.3;" class="glyphicon glyphicon-pencil" aria-hidden="true" onclick="changeProfileInfo()" onmouseover="profileInfoEditOver(this)" onmouseout="profileInfoEditOut(this)"></span>
+            <%}%>
           </div>
         </div>
       </div>
@@ -71,23 +84,21 @@
       <!-- Modal -->
       <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
-          <form action="#" id="profilePicForm" method="post">
-            <div class="modal-content">
-              <div class="modal-body">
-                <div class="row">
-                <% for(i = 0; i < num; i++) {%>
-                  <div class="col-md-3 col-xs-4">
-                    <img id="pic<%=i%>" height="100" width="100" src="/pic/profile/<%=i%>.png" alt="" onclick="selectPic(this, '<%=i%>')">
-                  </div>
-                <%}%>
+          <div class="modal-content">
+            <div class="modal-body">
+              <div class="row">
+              <% for(i = 0; i < num; i++) {%>
+                <div class="col-md-3 col-xs-4">
+                  <img id="pic<%=i%>" height="100" width="100" src="/pic/profile/<%=i%>.png" alt="" onclick="selectPic(this, '<%=i%>')">
                 </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
+              <%}%>
               </div>
             </div>
-          </form>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" onclick="submitProfilePic()">Save changes</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -95,41 +106,55 @@
       <div id="QA">
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
-          <li role="presentation" class="active"><a href="#myQuestions" aria-controls="myQuestions" role="tab" data-toggle="tab">My Questions</a></li>
-          <li role="presentation"><a href="#myAnswers" aria-controls="myAnswers" role="tab" data-toggle="tab">My Answers</a></li>
+          <li role="presentation" class="active"><a href="#questions" aria-controls="questions" role="tab" data-toggle="tab">My Questions</a></li>
+          <li role="presentation"><a href="#answers" aria-controls="answers" role="tab" data-toggle="tab">My Answers</a></li>
         </ul>
 
         <!-- Tab panes -->
         <div class="tab-content">
-          <div role="tabpanel" class="tab-pane active" id="myQuestions">
+          <div role="tabpanel" class="tab-pane active" id="questions">
             <!-- Questions list -->
-              <% for(i = 0; i < myQuestions.length; i++) { %> 
-                <div class="page-header"> 
-                  <div class="row">
-                    <div class="col-md-9">
-                      <h3>
-                        <a href="/questions/<%= myQuestions[i]._id %>"><%= myQuestions[i].title %></a>
-                        <!-- <span style="float:right;color:grey; font-size: 50%">delete</span> -->
-                        <p><small><%= myQuestions[i].detail %></small></p>
-                      </h3>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-right"><font style="color:grey;">Posted by: </font><a href="/user/<%=myQuestions[i].user%>"><%= myQuestions[i].user %></a></div>
-                        <h6 class="text-right">
-                        <%=myQuestions[i].date.getFullYear()%>.<%=myQuestions[i].date.getMonth()+1%>.<%=myQuestions[i].date.getDate()%> <%=myQuestions[i].date.getHours()%>:<%=myQuestions[i].date.getMinutes()%>:<%=myQuestions[i].date.getSeconds()%>
-                        </h6>
-                    </div>
+              <% for(i = 0; i < questions.length; i++) { %> 
+                <div id="q<%=questions[i]._id%>" class="page-header"> 
+                  <h3>
+                    <p>
+                      <a href="/questions/<%= questions[i]._id %>"><%= questions[i].title %></a>
+                      <% if(username == profile.username) { %>
+                        <span style="float:right; font-size:10px; opacity:0.3" class="glyphicon glyphicon-remove" aria-hidden="true" onmouseover="deleteOver(this)" onmouseout="deleteOut(this)" onclick="deleteQuestion(this, '<%= questions[i]._id %>')"></span>
+                      <%}%>
+                    </p>
+                    <small><%= questions[i].detail %></small>
+                  </h3>
+                  <div class="text-left">
+                    <span style="color:grey; font-size:10px">
+                      <%=questions[i].date%>
+                      <!-- <%=questions[i].date.getFullYear()%>-<%=questions[i].date.getMonth()+1%>-<%=questions[i].date.getDate()%> <%=questions[i].date.getHours()%>:<%=questions[i].date.getMinutes()%>:<%=questions[i].date.getSeconds()%> -->
+                    </span>
+                    <span style="float:right;">
+                    <font style="color:grey;">Posted by: </font>
+                    <a href="/user/<%=questions[i].user%>"><%= questions[i].user %></a>
+                    </span>
                   </div>
-                </div>
+                </div> 
               <% } %> 
           </div>
-          <div role="tabpanel" class="tab-pane" id="myAnswers">
+          <div role="tabpanel" class="tab-pane" id="answers">
             <!-- Answers list -->
-              <% for(i = 0; i < myAnswers.length; i++) { %> 
+              <% for(i = 0; i < answers.length; i++) { %>
+              <div id="a<%=answers[i]._id%>">
                 <div class="page-header">
-                  <h3><a href="/questions/<%= myAnswers[i].questionId %>"><%= myAnswers[i].questionTitle %></a></h3>
+                  <h3><a href="/questions/<%= answers[i].questionId %>"><%= answers[i].questionTitle %></a>
+                    <% if(username == profile.username) { %>
+                      <span style="float:right; font-size:10px; opacity:0.3" class="glyphicon glyphicon-remove" aria-hidden="true" onmouseover="deleteOver(this)" onmouseout="deleteOut(this)" onclick="deleteAnswer(this, '<%= answers[i]._id %>')"></span>
+                    <%}%>
+                  </h3>
+
+                  <span style="color:grey; font-size:10px">
+                    <%=answers[i].date%>
+                  </span>
                 </div> 
-                <%= myAnswers[i].body %>
+                <%= answers[i].body %>
+              </div>
               <% } %>
           </div>
         </div>
@@ -144,29 +169,120 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/javascripts/jquery-3.1.0.min.js"></script>
     <script src="/javascripts/bootstrap.min.js"></script>
-    <script src="/javascripts/moment.js"></script>
+    
     <script>
       var select = "<%=profile.pic%>";
       document.getElementById("pic" + select).style = "border-style: outset; border-width: 2px;";
 
-      function profileOver() {
+      function DateTransform() {
+
+      }
+
+      function profilePicOver() {
         if('<%=username%>' == '<%=profile.username%>') {
           document.getElementById("profilePic").style.opacity = 0.3;
           document.getElementById("profileChange").style.opacity = 0.8;
         }
       }
-      function profileOut() {
+      function profilePicOut() {
         if('<%=username%>' == '<%=profile.username%>') {
           document.getElementById("profilePic").style.opacity = 1;
           document.getElementById("profileChange").style.opacity = 0;
         }
       }
-      
       function selectPic(obj, i) {
         document.getElementById("pic" + select).style = "";
         obj.style =  "border-style: outset; border-width: 2px;"
         select = i;
-        document.getElementById("profilePicForm").action = "/user/<%=username%>/profile/pic?num=" + select;
+      }
+      function submitProfilePic() {
+        $.post(
+          "/user/<%=username%>/profile/pic",
+          {num:select},
+          function(result) {
+            document.getElementById('profilePic').src = '/pic/profile/' + result + '.png';
+            $('#profileModal').modal('hide');
+          }
+        );
+      }
+      function changeProfileInfo() {
+        var info = document.getElementById("profileInfo");
+        var input = document.getElementById("profileInfoInput");
+        var button = document.getElementById("profileInfoBtn");
+        var cancel = document.getElementById("profileInfoBtnCl");
+        var edit = document.getElementById("profileInfoEdit");
+        info.style.display = "none";
+        input.style.display = "inline";
+        button.style.display = "inline";
+        cancel.style.display = "inline";
+        edit.style.display = "none";
+        input.value = info.innerHTML;
+        input.focus();
+      }
+      function submitProfileInfo() {
+        $.post(
+          "/user/<%=username%>/profile/info",
+          $("#profileInfoForm").serialize(),
+          function(result) {
+            var info = document.getElementById("profileInfo");
+            var input = document.getElementById("profileInfoInput");
+            var button = document.getElementById("profileInfoBtn");
+            var cancel = document.getElementById("profileInfoBtnCl");
+            var edit = document.getElementById("profileInfoEdit");
+            info.innerHTML = result;
+            input.style.display = "none";
+            button.style.display = "none";
+            cancel.style.display = "none";
+            info.style.display = "inline";
+            edit.style.display = "inline";
+          }
+        );
+      }
+      function returnProfileInfo() {
+        var info = document.getElementById("profileInfo");
+        var input = document.getElementById("profileInfoInput");
+        var button = document.getElementById("profileInfoBtn");
+        var cancel = document.getElementById("profileInfoBtnCl");
+        var edit = document.getElementById("profileInfoEdit");
+        input.style.display = "none";
+        button.style.display = "none";
+        cancel.style.display = "none";
+        info.style.display = "inline";
+        edit.style.display = "inline";
+      }
+      function profileInfoEditOver(obj) {
+        obj.style.opacity = 1;
+      }
+      function profileInfoEditOut(obj) {
+        obj.style.opacity = 0.3;
+      }
+      function profileInfoKey(event) {
+        if(event.keyCode == 13) {
+          $('#profileInfoBtn').click();
+          return false;
+        }
+      }
+      function deleteOver(obj) {
+        obj.style.opacity = 1;
+      }
+      function deleteOut(obj) {
+        obj.style.opacity = 0.3;
+      }
+      function deleteQuestion(obj, id) {
+        $(obj).mouseover();
+        if(confirm("Are you sure to delete this question?  This action will also delete all the answers and votes of this question!")) {
+          $.get('/questions/' + id + '/delete');
+          $('#q' + id).remove();
+        }
+        $(obj).mouseout();
+      }
+      function deleteAnswer(obj, id) {
+        $(obj).mouseover();
+        if(confirm("Are you sure to delete this answer? This action will also delete all the votes of this answer!")) {
+          $.get('/answers/' + id + '/delete');
+          $('#a' + id).remove();
+        }
+        $(obj).mouseout();
       }
     </script>
   </body>

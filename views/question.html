@@ -31,11 +31,10 @@
         padding-right: 1%;
       }
       #header {
-
+        margin-bottom: 15px;
       }
     </style>
   </head>
-
   <body>
     <%- message %>
     <% if(username == null) { %>
@@ -47,16 +46,20 @@
     <div class="container">
       <!-- question -->
       <div id="header">
-        <div class="row"> 
-          <div class="col-md-8">
-            <h1><%= question.title %> 
-              <p><small><%= question.detail %></small></p>
-            </h1>
-          </div>
-          <div class="col-md-4">
-            <div class="text-right"><font style="color:grey;">Posted by: </font><a href="/user/<%=question.user%>"><%= question.user %></a></div>
-            <h6 class="text-right"><%= question.date %></h6>
-          </div>
+        <h1>
+          <p><%= question.title %></p>
+          <small><%= question.detail %></small>
+        </h1>
+        <div class="text-left">
+          <span style="color:grey; font-size:12px">
+          <%=question.date%>
+            <!-- <%=question.date.getFullYear()%>-<%=question.date.getMonth()+1%>-<%=question.date.getDate()%> <%=question.date.getHours()%>:<%=question.date.getMinutes()%>:<%=question.date.getSeconds()%> -->
+          </span>
+          <span style="float:right;">
+            <font style="color:grey;">Posted by:</font>
+            <img height="30" width="30" src="/pic/profile/<%=profile.pic%>.png" alt="">
+            <a href="/user/<%=question.user%>"><%= question.user %></a>
+          </span>
         </div>
       </div> 
 
@@ -107,8 +110,7 @@
                   <a href="/user/<%=answers[i].user%>"><%= answers[i].user%>:</a>
                   <p><%= answers[i].body%></p>
                   <div id="answerFunc">
-                    <li><a style="color:grey">reply</a></li>
-                    <li><a style="color:grey">delete</a></li>
+                    <li><a style="color:grey;cursor:pointer;" onclick="reply('<%= answers[i].user%>')">reply</a></li>
                     <li><a style="color:grey">more</a></li>
                   </div>
               </div>
@@ -123,7 +125,7 @@
       <!-- text editor -->
       <form action="/questions/<%= question._id%>" method="post" id="answer">
         <label>Your answer</label>
-        <textarea class="form-control" name="answer_body" rows="3"></textarea>
+        <textarea id="answerText" class="form-control" name="answer_body" rows="3"></textarea>
         <p>
           <button type="submit" class="btn btn-primary col-md-1 col-md-offset-11">Submit</button>
         </p>
@@ -169,12 +171,12 @@
           if(vote_status[index] == 'true') {
             document.getElementById("showvote" + index).innerHTML = Number(document.getElementById("showvote" + index).innerHTML) - 1;
             obj.style = "color: black";
-            $.get("/answers/" + id + "/vote?status=1" + "&date=" + Date());
+            $.get("/answers/" + id + "/vote/vote?status=1" + "&date=" + Date());
             vote_status[index] = 'false';
           }else {
             document.getElementById("showvote" + index).innerHTML = Number(document.getElementById("showvote" + index).innerHTML) + 1;
             obj.style = "color: red";
-            $.get("/answers/" + id + "/vote?status=0" + "&date=" + Date());
+            $.get("/answers/" + id + "/vote/vote?status=0" + "&date=" + Date());
             vote_status[index] = 'true';
           }
         }
@@ -187,15 +189,19 @@
           if(veto_status[index] == 'true') {
             document.getElementById("showveto" + index).innerHTML = Number(document.getElementById("showveto" + index).innerHTML) - 1;
             obj.style = "color: black";
-            $.get("/answers/" + id + "/veto?status=1" + "&date=" + Date());
+            $.get("/answers/" + id + "/vote/veto?status=1" + "&date=" + Date());
             veto_status[index] = 'false';
           }else {
             document.getElementById("showveto" + index).innerHTML = Number(document.getElementById("showveto" + index).innerHTML) + 1;
             obj.style = "color: green";
-            $.get("/answers/" + id + "/veto?status=0" + "&date=" + Date());
+            $.get("/answers/" + id + "/vote/veto?status=0" + "&date=" + Date());
             veto_status[index] = 'true';
           }
         }
+      }
+      function reply(username) {
+        document.getElementById('answerText').value = "Re: " + username + ": ";
+        $('#answerText').focus();
       }
 
 
