@@ -126,9 +126,8 @@
       <form action="/questions/<%= question._id%>" method="post" id="answer">
         <label>Your answer</label>
         <textarea id="answerText" class="form-control" name="answer_body" rows="3"></textarea>
-        <p>
-          <button type="submit" class="btn btn-primary col-md-1 col-md-offset-11">Submit</button>
-        </p>
+        <p></p>
+          <button id="answerSubmit" type="submit" class="btn btn-primary col-md-1 col-md-offset-11 col-xs-3 col-xs-offset-9">Submit</button>
       </form>
     </div>
 
@@ -143,7 +142,9 @@
     <script src="/javascripts/bootstrap.min.js"></script>
     
     <script>
-
+      if("<%=username%>" == 'undefined' || '<%=username%>' == 'null') {
+        document.getElementById("answerSubmit").disabled="disabled";
+      }
       function voteOver(obj) {
         obj.style = "color:red";
       }
@@ -165,7 +166,7 @@
         }
       }
       function vote(obj, id, index) {
-        if('<%=username%>' == 'undefined') {
+        if('<%=username%>' == 'undefined' || '<%=username%>' == 'null') {
           alert("login first!");
         }else {
           if(vote_status[index] == 'true') {
@@ -183,7 +184,7 @@
         
       }
       function veto(obj, id, index) {
-        if('<%=username%>' == 'undefined') {
+        if('<%=username%>' == 'undefined' || '<%=username%>' == 'null') {
           alert("login first!");
         }else {
           if(veto_status[index] == 'true') {
@@ -199,8 +200,13 @@
           }
         }
       }
+
+      var replyPre = "";
+
       function reply(username) {
-        document.getElementById('answerText').value = "Re: " + username + ": ";
+        document.getElementById('answerText').value = document.getElementById('answerText').value.replace(replyPre, "");
+        replyPre = "Re: " + username + ": ";
+        document.getElementById('answerText').value = replyPre + document.getElementById('answerText').value;
         $('#answerText').focus();
       }
 

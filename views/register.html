@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title><%= title %></title>
-    <link href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/stylesheets/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
       body {
         padding-top: 80px;
@@ -23,38 +23,40 @@
             <fieldset>
                 <div class="panel panel-default">
                 <div class="panel-heading">
-                    <p class="tc">注册信息</p>
+                    <p class="tc">Sign up</p>
                 </div>
                 <div class="panel-body m15">
-                <div class="form-group">
+                <ul class="bg-danger">
+                </ul>
+                <div id="usernameForm" class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon">
                         <span class="glyphicon glyphicon-user"></span>
                         </span>
-                        <input type="text" class="form-control" id="username" autofocus="autofocus" name="username" placeholder="请输入用户名" required>
+                        <input type="text" class="form-control" id="username" autofocus="autofocus" name="username" placeholder="username" required>
                     </div>
                 </div>
-                <div class="form-group">
+                <div id="passwordForm" class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon">
                         <span class="glyphicon glyphicon-lock"></span>
                         </span>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码" required>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="password" required>
                     </div>
                 </div>
-                <div class="form-group">
+                <div id="password1Form" class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon">
                         <span class="glyphicon glyphicon-lock"></span>
                         </span>
-                        <input type="password" class="form-control" id="password1" name="password1" placeholder="请再次输入密码" required>
+                        <input type="password" class="form-control" id="password1" name="password1" placeholder="password" required>
                     </div>
                 </div>
                 <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block" id="register1">注册</button>
+                        <button type="submit" class="btn btn-primary btn-block" id="register1" disabled="disabled">Sign up</button>
                 </div>
                 <div class="form-group">
-                        <button type="button" class="btn btn-info col-sm-2 col-sm-offset-10" id="login1" Onclick="window.location.href='/login'">登录</button>
+                        <button type="button" class="btn btn-info col-md-3 col-md-offset-9 col-xs-3 col-xs-offset-9" id="login1" Onclick="window.location.href='/login'">Login</button>
                 </div>
                 </div>
                 </div>
@@ -64,6 +66,56 @@
 
     <script type="text/javascript" src="javascripts/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="javascripts/bootstrap.min.js"></script>
+    <script>
+    var checked = {username: 0, password: 0, password1: 0};
+    function check(cls) {
+        var value = $("#" + cls).val();
+        if(isLegal(cls, value)) {
+            console.log(cls+" is legal");
+            $("#"+cls+"Form").removeClass("has-error");
+            $("#"+cls+"Err").remove();
+            checked[cls] = 1;
+        }else {
+            console.log(cls+" is illegal");
+            $("#"+cls+"Form").addClass("has-error");
+            $("#"+cls+"Err").remove();
+            var err = cls + " is illegal";
+            var id =  cls + 'Err';
+            $(".bg-danger").append("<li id='" + id + "'>" + err + "</li>");
+            checked[cls] = 0;
+        }
+        enableSignup();
+    }
+
+    function isLegal(cls, val) {
+        if(cls == "username") {
+            return val != "null" && val != "undefined";
+        }else if(cls == "password") {
+            return val.length >= 5 && val.match(/\d+/g) && val.match(/[A-z]+/g);
+        }else if(cls == "password1") {
+            return val == $("#password").val();
+        }
+        
+    }
+
+    function enableSignup() {
+        if(checked["username"] && checked["password"] && checked["password1"]) {
+            $("#register1").prop('disabled', false);
+        }else {
+            $("#register1").prop('disabled', true);
+        }
+    }
+    
+    $("#username").keyup(function() {
+        check("username");
+    });
+    $("#password").keyup(function() {
+        check("password");
+    });
+    $("#password1").keyup(function() {
+        check("password1");
+    });
+    </script>
 </body>
 </head>
 </html>

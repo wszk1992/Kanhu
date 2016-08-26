@@ -49,14 +49,17 @@
       <div id="profile">
         <div class="media">
           <div class="media-left">
-            <div style="position: relative; width: 150px; height: 150px;" onmouseover="profilePicOver()" onmouseout="profilePicOut()">
+            <% if(username == profile.username) {%> 
+              <div style="position: relative; width: 150px; height: 150px;" onmouseover="profilePicOver(this)" onmouseout="profilePicOut()" data-toggle="modal" data-target="#profileModal">
+            <%}else {%>
+              <div style="position: relative; width: 150px; height: 150px;">
+            <%}%>
               <span id="profilePicSpan">
-                <img id="profilePic" style="opacity:1;" height="150" width="150" class="media-object" src="/pic/profile/<%=profile.pic%>.png" alt="">
+                <img id="profilePic" style="opacity:1;" height="150" width="150" class="media-object" src="/pic/profile/<%=profile.pic%>.png" alt="" >
               </span>
               <% if(username == profile.username) {%>
-                <span style="position: absolute; top: 65px; left:40px">
-                  <a id="profileChange" style="opacity:0;" class="btn btn-default" href="#" role="button"  data-toggle="modal" data-target="#profileModal">Change
-                  </a>
+                <span style="position: absolute; top: 65px; left:50px">
+                  <b id="profileChange" style="opacity:0;" >Change</b>
                 </span>
               <%}%>
             </div>
@@ -89,14 +92,13 @@
               <div class="row">
               <% for(i = 0; i < num; i++) {%>
                 <div class="col-md-3 col-xs-4">
-                  <img id="pic<%=i%>" height="100" width="100" src="/pic/profile/<%=i%>.png" alt="" onclick="selectPic(this, '<%=i%>')">
+                  <img id="pic<%=i%>" height="100" width="100" src="/pic/profile/<%=i%>.png" alt="" onclick="selectPic('<%=i%>')">
                 </div>
               <%}%>
               </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" onclick="submitProfilePic()">Save changes</button>
             </div>
           </div>
         </div>
@@ -171,30 +173,20 @@
     <script src="/javascripts/bootstrap.min.js"></script>
     
     <script>
-      var select = "<%=profile.pic%>";
-      document.getElementById("pic" + select).style = "border-style: outset; border-width: 2px;";
 
-      function profilePicOver() {
-        if('<%=username%>' == '<%=profile.username%>') {
-          document.getElementById("profilePic").style.opacity = 0.3;
-          document.getElementById("profileChange").style.opacity = 0.8;
-        }
+      function profilePicOver(obj) {
+        document.getElementById("profilePic").style.opacity = 0.3;
+        document.getElementById("profileChange").style.opacity = 1;
+        obj.style.cursor = "pointer";
       }
       function profilePicOut() {
-        if('<%=username%>' == '<%=profile.username%>') {
-          document.getElementById("profilePic").style.opacity = 1;
-          document.getElementById("profileChange").style.opacity = 0;
-        }
+        document.getElementById("profilePic").style.opacity = 1;
+        document.getElementById("profileChange").style.opacity = 0;
       }
-      function selectPic(obj, i) {
-        document.getElementById("pic" + select).style = "";
-        obj.style =  "border: solid 4px hsla(120,65%,75%,0.3);"
-        select = i;
-      }
-      function submitProfilePic() {
+      function selectPic(i) {
         $.post(
           "/user/<%=username%>/profile/pic",
-          {num:select},
+          {num: i},
           function(result) {
             document.getElementById('profilePic').src = '/pic/profile/' + result + '.png';
             $('#profileModal').modal('hide');
