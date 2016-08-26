@@ -351,7 +351,6 @@ router.get('/answers/:id/vote/:v', function(req, res) {
 											console.log(err);
 											res.sendStatus(500);
 										}else {
-											console.log("create vote successfully!");
 											res.sendStatus(200);
 										}
 									});
@@ -366,7 +365,6 @@ router.get('/answers/:id/vote/:v', function(req, res) {
 											console.log(err);
 											res.sendStatus(500);
 										}else {
-											console.log("create veto successfully!");
 											res.sendStatus(200);
 										}
 									});
@@ -378,14 +376,12 @@ router.get('/answers/:id/vote/:v', function(req, res) {
 							}else {
 								docv.veto = !docv.veto;
 							}
-							console.log("change the vote/veto");
 							docv.save(function(err) {
 								if(err) {
 									console.log(err);
 									req.session.error = "Fail to save in v_db";
 									res.sendStatus(500);
 								}else {
-									console.log("vote saved in db");
 									res.sendStatus(200);
 								}
 							});
